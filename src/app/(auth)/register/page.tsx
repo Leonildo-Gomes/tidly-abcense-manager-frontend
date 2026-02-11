@@ -18,7 +18,7 @@ export default function RegisterUserPage() {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
     // Redirect to login or onboarding
-    router.push("/login");
+    router.push("/signin");
   };
 
   return (
@@ -152,13 +152,12 @@ export default function RegisterUserPage() {
               )}
             </motion.button>
           </form>
-
           {/* Footer */}
           <div className="mt-8 text-center text-sm text-foreground/60">
             <p>
               Already have an account?{" "}
               <Link
-                href="/login"
+                href="/signin"
                 className="text-primary font-medium hover:text-primary/80 transition-colors"
               >
                 Login here

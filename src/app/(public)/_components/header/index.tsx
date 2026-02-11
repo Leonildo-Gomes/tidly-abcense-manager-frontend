@@ -24,7 +24,7 @@ export default function Header() {
             Testimonials
           </a>
         </div>
-        <a href="/login" className="bg-primary text-white px-6 py-2.5 rounded-full font-medium shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-105 transition-all text-sm">
+        <a href="/signin" className="bg-primary text-white px-6 py-2.5 rounded-full font-medium shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:scale-105 transition-all text-sm">
           Login
         </a>
       </div>
