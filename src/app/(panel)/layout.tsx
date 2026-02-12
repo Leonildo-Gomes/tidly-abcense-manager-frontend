@@ -1,5 +1,5 @@
 
-import AppSidebar from "@/app/(panel)/_components/sidebar/sidebar";
+import AppSidebar from "@/app/(panel)/_components/sidebar";
 import "@/app/globals.css";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Geist, Geist_Mono } from "next/font/google";

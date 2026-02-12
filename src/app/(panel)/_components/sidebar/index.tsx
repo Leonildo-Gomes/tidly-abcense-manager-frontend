@@ -1,68 +1,264 @@
 "use client";
 
-import { cn } from "@/lib/api-client";
 import {
   Building2,
+  Calendar,
+  ChartArea,
+  CheckSquare,
+  ChevronRight,
+  ChevronsUpDown,
+  ClipboardList,
+  FileText,
   Home,
-  Settings
+  Landmark,
+  LogOut,
+  Settings,
+  User,
+  Users
 } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import * as React from "react";
 
-const menuItems = [
-  {
-    title: "Dashboard",
-    href: "/dashboard",
-    icon: Home,
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar as SidebarContainer,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail
+} from "@/components/ui/sidebar";
+import Image from "next/image";
+import logo from "../../../../../public/tidly_icone.png";
+// Menu configuration
+const data = {
+  user: {
+    name: "User Name",
+    email: "user@example.com",
+    avatar: "/avatars/shadcn.jpg",
   },
-  {
-    title: "Organization",
-    icon: Building2,
-    children: [
-      { title: "Companies", href: "/organization/company" },
-      { title: "Teams", href: "/organization/team" },
-      { title: "Employees", href: "/organization/employee" },
-    ],
-  },
-  {
-    title: "Workflow",
-    //icon: LayoutSubheader,
-    children: [
-      { title: "My Requests", href: "/workflow/requests" },
-      { title: "Approvals", href: "/workflow/approvals" },
-    ],
-  },
-  {
-    title: "Configuration",
-    icon: Settings,
-    children: [
-      { title: "Absence Types", href: "/configuration/absence-types" },
-      { title: "Holidays", href: "/configuration/holidays" },
-    ],
-  },
-];
+  navMain: [
+    {
+      title: "Home",
+      url: "/home",
+      icon: Home,
+      isActive: true, // Default active logic handled below
+    },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: ChartArea,
+      isActive: true, // Default active logic handled below
+    },
+    {
+      title: "Organization",
+      url: "#",
+      icon: Building2,
+      isActive: true,
+      items: [
+        {
+          title: "Companies",
+          url: "/organization/company",
+          icon: Landmark,
+        },
+        {
+          title: "Departments",
+          url: "/organization/department",
+          icon: Building2,
+        },
+        {
+          title: "Teams",
+          url: "/organization/team",
+          icon: Users,
+        },
+        {
+          title: "Employees",
+          url: "/organization/employee",
+          icon: User,
+        },
+      ],
+    },
+    {
+      title: "Workflow",
+      url: "#",
+      icon: ClipboardList,
+      items: [
+        {
+          title: "My Requests",
+          url: "/workflow/request",
+          icon: FileText,
+        },
+        {
+          title: "Approvals",
+          url: "/workflow/approval",
+          icon: CheckSquare,
+        },
+      ],
+    },
+    {
+      title: "Configuration",
+      url: "#",
+      icon: Settings,
+      items: [
+        {
+          title: "Absence Types",
+          url: "/configuration/absence-type",
+          icon: ClipboardList,
+        },
+        {
+          title: "Absence Policies",
+          url: "/configuration/absence-policies",
+          icon: FileText,
+        },
+        {
+          title: "Holidays",
+          url: "/configuration/holiday",
+          icon: Calendar,
+        },
+      ],
+    },
+  ],
+};
 
-export default function Sidebar({children}: {children: React.ReactNode}) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+export default function Sidebar({...props}: React.ComponentProps<typeof SidebarContainer>) {
+  
   const pathname = usePathname();
 
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
-  const toggleMobile = () => setIsMobileOpen(!isMobileOpen);
-
   return (
-    <div className="flex min-h-screen w-full">
-      <aside className={cn("flex flex-col border-r bg-background transition-all duration-300 p-4 h-full",{
-                "w-20": isCollapsed,
-                "w-64": !isCollapsed,
-                "hidden md:flex md:fixed": true
-            })}>
-        
-      </aside>
-      <h1>sidebar</h1>
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
+    <SidebarContainer collapsible="icon" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-primary-foreground">
+                   <Image src={logo} alt="Tidly" width={80} height={80} className="rounded-full" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">Tidly</span>
+                  <span className="truncate text-xs">Manage Absence</span>
+                </div>
+            </div>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarMenu>
+            {data.navMain.map((item) => {
+               // Determine if grouping is active based on children URLs
+               const isGroupActive = item.items?.some(subItem => pathname.startsWith(subItem.url));
+               
+               // If no items, render single link
+               if (!item.items) {
+                   const isActive = pathname === item.url;
+                   return (
+                       <SidebarMenuItem key={item.title}>
+                           <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
+                               <a href={item.url}>
+                                   {item.icon && <item.icon />}
+                                   <span>{item.title}</span>
+                               </a>
+                           </SidebarMenuButton>
+                       </SidebarMenuItem>
+                   )
+               }
+
+               return (
+                <Collapsible
+                  key={item.title}
+                  asChild
+                  defaultOpen={isGroupActive} // Open by default if active
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip={item.title}>
+                        {item.icon && <item.icon />}
+                        <span>{item.title}</span>
+                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.items?.map((subItem) => {
+                            const isSubActive = pathname === subItem.url;
+                            return (
+                              <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild isActive={isSubActive}>
+                                  <a href={subItem.url}>
+                                    {/* Use icon if you want, but Standard submenus usually just text or smaller icon */}
+                                    {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />} 
+                                    <span>{subItem.title}</span>
+                                  </a>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            )
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar className="h-8 w-8 rounded-lg">
+                    {/* <AvatarImage src={data.user.avatar} alt={data.user.name} /> */}
+                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{data.user.name}</span>
+                    <span className="truncate text-xs">{data.user.email}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="bottom"
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </SidebarContainer>
   );
 }
