@@ -3,23 +3,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -42,9 +36,9 @@ const colorOptions = [
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   code: z.string().min(2, { message: "Code must be at least 2 characters." }),
-  category: z.enum(["vacation", "sick", "other"]),
-  unit: z.enum(["days", "hours"]),
   color: z.string().min(1, { message: "Color is required." }),
+  required_attachment: z.boolean(),
+  description: z.string().optional(),
   status: z.boolean(),
 });
 
@@ -64,9 +58,9 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
     defaultValues: initialData || {
       name: "",
       code: "",
-      category: "vacation",
-      unit: "days",
       color: "#3b82f6",
+      required_attachment: false,
+      description: "",
       status: true,
     },
   });
@@ -139,58 +133,23 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
+              <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Category</FormLabel>
-                        <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        >
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="vacation">Vacation</SelectItem>
-                            <SelectItem value="sick">Sick Leave</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter a description for this absence type"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
-                    )}
+                  )}
                 />
-
-                <FormField
-                    control={form.control}
-                    name="unit"
-                    render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Unit</FormLabel>
-                        <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        >
-                        <FormControl>
-                            <SelectTrigger>
-                            <SelectValue placeholder="Select unit" />
-                            </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                            <SelectItem value="days">Days</SelectItem>
-                            <SelectItem value="hours">Hours</SelectItem>
-                        </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                    )}
-                />
-              </div>
 
               <FormField
                   control={form.control}
@@ -224,26 +183,49 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
                   )}
                 />
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">Active Status</FormLabel>
-                      <FormDescription>
-                        Inactive absence types cannot be selected for new requests.
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="required_attachment"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Required Attachment</FormLabel>
+                          <FormDescription>
+                            Require a file attachment for this absence type.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Active Status</FormLabel>
+                          <FormDescription>
+                            Inactive types cannot be selected.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+              </div>
 
               <div className="flex items-center justify-end gap-2 pt-4">
                 <Button

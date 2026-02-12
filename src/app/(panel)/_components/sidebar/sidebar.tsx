@@ -3,16 +3,18 @@
 import {
   Building2,
   Calendar,
+  ChartArea,
   CheckSquare,
   ChevronRight,
   ChevronsUpDown,
   ClipboardList,
   FileText,
   Home,
+  Landmark,
   LogOut,
   Settings,
   User,
-  Users,
+  Users
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -55,9 +57,15 @@ const data = {
   },
   navMain: [
     {
+      title: "Home",
+      url: "/home",
+      icon: Home,
+      isActive: true, // Default active logic handled below
+    },
+    {
       title: "Dashboard",
       url: "/dashboard",
-      icon: Home,
+      icon: ChartArea,
       isActive: true, // Default active logic handled below
     },
     {
@@ -69,7 +77,7 @@ const data = {
         {
           title: "Companies",
           url: "/organization/company",
-          icon: Building2,
+          icon: Landmark,
         },
         {
           title: "Departments",
@@ -116,6 +124,11 @@ const data = {
           icon: ClipboardList,
         },
         {
+          title: "Absence Policies",
+          url: "/configuration/absence-policies",
+          icon: FileText,
+        },
+        {
           title: "Holidays",
           url: "/configuration/holiday",
           icon: Calendar,
@@ -135,7 +148,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
           <SidebarMenuItem>
             <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg text-primary-foreground">
-                   <Image src={logo} alt="Tidly" width={50} height={50} className="rounded-full" />
+                   <Image src={logo} alt="Tidly" width={80} height={80} className="rounded-full" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Tidly</span>
@@ -192,7 +205,7 @@ export default function AppSidebar({ ...props }: React.ComponentProps<typeof Sid
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
                                   <a href={subItem.url}>
                                     {/* Use icon if you want, but Standard submenus usually just text or smaller icon */}
-                                    {/* {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />} */} 
+                                    {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />} 
                                     <span>{subItem.title}</span>
                                   </a>
                                 </SidebarMenuSubButton>
