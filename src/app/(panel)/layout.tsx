@@ -1,7 +1,8 @@
 
 import AppSidebar from "@/app/(panel)/_components/sidebar";
 import "@/app/globals.css";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import Header from "./_components/header";
 
 export default function PanelLayout({
   children,
@@ -12,9 +13,7 @@ export default function PanelLayout({
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
-            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-1" />
-            </header>
+            <Header />
             <div className="flex flex-1 flex-col gap-4 p-4">
               {children}
             </div>
