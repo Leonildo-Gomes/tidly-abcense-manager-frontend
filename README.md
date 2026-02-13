@@ -49,6 +49,7 @@ The operational engine connecting employees to managers.
 * **App Router**: Efficient rendering and SEO-friendly.
 * **UI/UX**: Accessible interface focused on speed.
 * **Styling**: Tailwind CSS + Shadcn/UI.
+* **Auth**: Clerk
 
 ---
 

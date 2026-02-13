@@ -47,6 +47,7 @@ export default function SigninHookForm() {
       });
       if (result?.status === "complete") {
         await setActive({ session: result.createdSessionId });
+        // Use router.push or window.location if middleware has latency issues
         router.push("/home");
       } else {
         console.log(result);
@@ -61,6 +62,7 @@ export default function SigninHookForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* ... email field ... */}
         <FormField
           control={form.control}
           name="email"
@@ -144,7 +146,6 @@ export default function SigninHookForm() {
         />
 
         <button
-          onClick={() => router.push("/home")}
           type="submit"
           disabled={isLoading}
           className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-base flex justify-center items-center gap-2"
@@ -155,3 +156,4 @@ export default function SigninHookForm() {
     </Form>
   );
 }
+
