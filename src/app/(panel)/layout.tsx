@@ -2,24 +2,13 @@
 import AppSidebar from "@/app/(panel)/_components/sidebar";
 import "@/app/globals.css";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Geist, Geist_Mono } from "next/font/google";
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 export default function PanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>
@@ -31,8 +20,5 @@ export default function PanelLayout({
             </div>
           </SidebarInset>
         </SidebarProvider>
-       
-      </body>
-    </html>
   )
 }

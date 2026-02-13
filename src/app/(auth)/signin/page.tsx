@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";

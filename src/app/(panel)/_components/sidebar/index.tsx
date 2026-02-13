@@ -16,7 +16,7 @@ import {
   User,
   Users
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -46,6 +46,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail
 } from "@/components/ui/sidebar";
+import { useClerk, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import logo from "../../../../../public/tidly_icone.png";
 // Menu configuration
@@ -140,8 +141,17 @@ const data = {
 
 
 export default function Sidebar({...props}: React.ComponentProps<typeof SidebarContainer>) {
-  
+  const { user, isLoaded , isSignedIn} = useUser();
+  const { signOut } = useClerk();
   const pathname = usePathname();
+  const router = useRouter();
+
+  if (!isLoaded || !isSignedIn) return null;
+
+  const handleSignOut = () => {
+    signOut();
+    router.push("/");
+  };
 
   return (
     <SidebarContainer collapsible="icon" {...props}>
@@ -237,8 +247,8 @@ export default function Sidebar({...props}: React.ComponentProps<typeof SidebarC
                     <AvatarFallback className="rounded-lg">CN</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{data.user.name}</span>
-                    <span className="truncate text-xs">{data.user.email}</span>
+                    <span className="truncate font-semibold">{user?.firstName}</span>
+                    <span className="truncate text-xs">{user?.primaryEmailAddress?.emailAddress}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -249,7 +259,7 @@ export default function Sidebar({...props}: React.ComponentProps<typeof SidebarC
                 align="end"
                 sideOffset={4}
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Log out
                 </DropdownMenuItem>

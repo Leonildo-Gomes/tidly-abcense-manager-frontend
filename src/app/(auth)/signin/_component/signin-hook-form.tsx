@@ -8,21 +8,22 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 const schema = z.object({
-  email: z.string().min(1, "Email is required").email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  email: z.email("Invalid email address").nonempty("Email is required"),
+  password: z.string().min(8, "Password must be at least 8 characters long").nonempty("Password is required"),
 });
 
 type FormData = z.infer<typeof schema>;
 
 export default function SigninHookForm() {
+  const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,12 +36,26 @@ export default function SigninHookForm() {
     },
   });
 
+  if (!isLoaded) return null;
+  
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
-    console.log(data);
+    try {
+      setIsLoading(true);
+      const result = await signIn?.create({
+        identifier: data.email,
+        password: data.password,
+      });
+      if (result?.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/home");
+      } else {
+        console.log(result);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -129,7 +144,7 @@ export default function SigninHookForm() {
         />
 
         <button
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/home")}
           type="submit"
           disabled={isLoading}
           className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-base flex justify-center items-center gap-2"
