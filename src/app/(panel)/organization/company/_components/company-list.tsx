@@ -5,10 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Filter, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import CompanyGrid from "./company-grid";
 import CompanyTable from "./company-table";
 import { Company } from "./types";
-
 // Mock data
 const initialCompanies: Company[] = [
   {
@@ -65,6 +65,7 @@ export default function CompanyList() {
           : company
       )
     );
+    toast.success("Company status updated successfully!");
   };
 
   const filteredCompanies = companies.filter(

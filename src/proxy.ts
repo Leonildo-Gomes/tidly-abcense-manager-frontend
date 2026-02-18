@@ -5,6 +5,7 @@ const publicRoutes = createRouteMatcher([
   "/",
   "/signin",
   "/register",
+  "/pricing",
 
 ]);
 

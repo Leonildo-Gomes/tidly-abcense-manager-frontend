@@ -22,7 +22,7 @@ export default function RegisterUserPage() {
           className="inline-flex items-center text-gray-500 hover:text-primary transition-colors mb-8 font-medium text-sm group"
         >
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-          Back to Home
+          Back to Principal
         </Link>
         
         <div className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl shadow-primary/10 border border-white p-8 sm:p-10 relative overflow-hidden">
@@ -32,8 +32,8 @@ export default function RegisterUserPage() {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
               <UserPlus className="w-6 h-6" />
             </div>
-            <h1 className="text-2xl font-serif font-bold text-foreground">Create Account</h1>
-            <p className="text-gray-500 mt-2">Sign up to get started with Tidly</p>
+            <h1 className="text-2xl font-serif font-bold text-foreground">Get Started</h1>
+            <p className="text-gray-500 mt-2">Create your workspace and account</p>
           </div>
 
           <RegisterHookForm />

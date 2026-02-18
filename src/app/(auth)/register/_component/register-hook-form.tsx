@@ -1,271 +1,184 @@
 "use client";
 
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useSignUp } from "@clerk/nextjs";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Loader2, Lock, Mail, User } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import VerifyHookForm from "./verify-hook-form";
+import { useOrganizationList, useSignUp } from "@clerk/nextjs";
+import { AnimatePresence } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import StepIndicator from "./step-indicator";
+import CompanyStep from "./steps/company-step";
+import PlanStep from "./steps/plan-step";
+import UserStep from "./steps/user-step";
+import VerificationStep from "./steps/verification-step";
 
-const signUpSchema = z.object({
-  firstName: z.string().min(2, "Name must be at least 2 characters"),
-  lastName: z.string().min(2, "Surname must be at least 2 characters"),
-  email: z.email("Invalid email address").nonempty("Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters").nonempty("Password is required"),
-});
-
-type SignUpFormData = z.infer<typeof signUpSchema>;
+type RegistrationData = {
+  companyName: string;
+  companyNumber: string;
+  plan: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+};
 
 
 export default function RegisterHookForm() {
-  const { isLoaded, signUp, setActive } = useSignUp();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [verifying, setVerifying] = useState(false);
+  const { isLoaded: isSignUpLoaded, signUp, setActive } = useSignUp();
+  const { createOrganization, isLoaded: isOrgLoaded } = useOrganizationList();
+
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [formData, setFormData] = useState<Partial<RegistrationData>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const signUpForm = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-    },
-  });
+  // Initialize plan from URL
+  useEffect(() => {
+    const planParam = searchParams.get("plan");
+    if (planParam) {
+      setFormData((prev) => ({ ...prev, plan: planParam }));
+    } else {
+      setFormData((prev) => ({ ...prev, plan: "free" }));
+    }
+  }, [searchParams]);
 
+  const onCompanySubmit = (data: { companyName: string; companyNumber: string }) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+    setStep(2);
+  };
 
+  const onPlanSelect = (plan: string) => {
+    setFormData((prev) => ({ ...prev, plan }));
+  };
 
-  if (!isLoaded) return null;
+  const onUserSubmit = async (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => {
+    if (!isSignUpLoaded || !isOrgLoaded) return;
 
-  const onSignUpSubmit = async (data: SignUpFormData) => {
-    if (!isLoaded) return;
+    const finalData = { ...formData, ...data } as RegistrationData;
+    setFormData((prev) => ({ ...prev, ...data })); // Save user data to state
+    setIsLoading(true);
 
     try {
-      setIsLoading(true);
-
+      // 1. Create User in Clerk
       await signUp.create({
-        emailAddress: data.email,
-        password: data.password,
-        firstName: data.firstName,
-        lastName: data.lastName,
+        emailAddress: finalData.email,
+        password: finalData.password,
+        firstName: finalData.firstName,
+        lastName: finalData.lastName,
       });
 
+      // 2. Prepare Verification
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-
-      setVerifying(true);
+      setStep(4); // Move to verification UI
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2));
-      // Ideally, show toast error here
-      signUpForm.setError("root", {
-        message: err.errors?.[0]?.message || "Something went wrong",
-      });
+      console.error("Registration Error:", err);
+      const msg = err.errors?.[0]?.message || "Registration failed";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleVerification = async (code: string) => {
+    if (!isSignUpLoaded || !isOrgLoaded) return;
+    setIsLoading(true);
 
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code,
+      });
 
-  if (verifying) {
-    return <VerifyHookForm email={signUpForm.getValues("email")} />;
-  }
+      if (completeSignUp.status !== "complete") {
+        console.log(JSON.stringify(completeSignUp, null, 2));
+        toast.error("Verification failed. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Verification Success!
+      // 1. Set Session Active
+      await setActive({ session: completeSignUp.createdSessionId });
+
+      // 2. Create Organization
+      if (createOrganization) {
+        await createOrganization({
+          name: formData.companyName!,
+          slug: formData.companyNumber!,
+        });
+
+        // 3. Sync to Backend
+        // await fetch('/api/companies', { ... })
+
+        toast.success("Account & Company created!");
+        router.push("/dashboard");
+      } else {
+        toast.success("Account created! Redirecting to setup...");
+        router.push("/dashboard"); // Fallback
+      }
+    } catch (err: any) {
+      console.error("Verification/Org Error:", err);
+      toast.error(err.errors?.[0]?.message || "Something went wrong");
+      setIsLoading(false);
+    }
+  };
+
+  const currentPlan = formData.plan || "free";
 
   return (
-    <Form {...signUpForm}>
-      <form
-        onSubmit={signUpForm.handleSubmit(onSignUpSubmit)}
-        className="space-y-5"
-      >
-          <FormField
-            control={signUpForm.control}
-            name="firstName"
-            render={({ field }) => (
-              <FormItem className="relative group">
-                <FormLabel
-                  className={`block text-xs font-bold uppercase tracking-wider mb-2 transition-colors ${
-                    focusedField === "firstName"
-                      ? "text-primary"
-                      : "text-gray-400"
-                  }`}
-                >
-                  First Name
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <User
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                        focusedField === "firstName"
-                          ? "text-primary"
-                          : "text-gray-400"
-                      } z-10`}
-                    />
-                    <Input
-                      {...field}
-                      placeholder="John"
-                      onFocus={() => setFocusedField("firstName")}
-                      onBlur={() => {
-                        field.onBlur();
-                        setFocusedField(null);
-                      }}
-                      className="w-full bg-gray-50 border border-transparent focus:border-primary/30 focus:bg-white rounded-xl py-6 pl-12 pr-4 text-gray-700 outline-none transition-all shadow-inner focus:shadow-lg focus:shadow-primary/5 placeholder:text-gray-300"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+    <div className="w-full">
+      <StepIndicator currentStep={step} />
+
+      <AnimatePresence mode="wait">
+        {step === 1 && (
+          <CompanyStep
+            key="step1"
+            defaultValues={{
+              companyName: formData.companyName,
+              companyNumber: formData.companyNumber,
+            }}
+            onNext={onCompanySubmit}
           />
-
-          <FormField
-            control={signUpForm.control}
-            name="lastName"
-            render={({ field }) => (
-              <FormItem className="relative group">
-                <FormLabel
-                  className={`block text-xs font-bold uppercase tracking-wider mb-2 transition-colors ${
-                    focusedField === "lastName"
-                      ? "text-primary"
-                      : "text-gray-400"
-                  }`}
-                >
-                  Last Name
-                </FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <User
-                      className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                        focusedField === "lastName"
-                          ? "text-primary"
-                          : "text-gray-400"
-                      } z-10`}
-                    />
-                    <Input
-                      {...field}
-                      placeholder="Doe"
-                      onFocus={() => setFocusedField("lastName")}
-                      onBlur={() => {
-                        field.onBlur();
-                        setFocusedField(null);
-                      }}
-                      className="w-full bg-gray-50 border border-transparent focus:border-primary/30 focus:bg-white rounded-xl py-6 pl-12 pr-4 text-gray-700 outline-none transition-all shadow-inner focus:shadow-lg focus:shadow-primary/5 placeholder:text-gray-300"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-        <FormField
-          control={signUpForm.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="relative group">
-              <FormLabel
-                className={`block text-xs font-bold uppercase tracking-wider mb-2 transition-colors ${
-                  focusedField === "email" ? "text-primary" : "text-gray-400"
-                }`}
-              >
-                Email Address
-              </FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Mail
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                      focusedField === "email" ? "text-primary" : "text-gray-400"
-                    } z-10`}
-                  />
-                  <Input
-                    {...field}
-                    type="email"
-                    placeholder="name@company.com"
-                    onFocus={() => setFocusedField("email")}
-                    onBlur={() => {
-                      field.onBlur();
-                      setFocusedField(null);
-                    }}
-                    className="w-full bg-gray-50 border border-transparent focus:border-primary/30 focus:bg-white rounded-xl py-6 pl-12 pr-4 text-gray-700 outline-none transition-all shadow-inner focus:shadow-lg focus:shadow-primary/5 placeholder:text-gray-300"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={signUpForm.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="relative group">
-              <FormLabel
-                className={`block text-xs font-bold uppercase tracking-wider mb-2 transition-colors ${
-                  focusedField === "password"
-                    ? "text-primary"
-                    : "text-gray-400"
-                }`}
-              >
-                Password
-              </FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <Lock
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${
-                      focusedField === "password"
-                        ? "text-primary"
-                        : "text-gray-400"
-                    } z-10`}
-                  />
-                  <Input
-                    {...field}
-                    type="password"
-                    placeholder="••••••••"
-                    onFocus={() => setFocusedField("password")}
-                    onBlur={() => {
-                      field.onBlur();
-                      setFocusedField(null);
-                    }}
-                    className="w-full bg-gray-50 border border-transparent focus:border-primary/30 focus:bg-white rounded-xl py-6 pl-12 pr-4 text-gray-700 outline-none transition-all shadow-inner focus:shadow-lg focus:shadow-primary/5 placeholder:text-gray-300"
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        {signUpForm.formState.errors.root && (
-            <div className="text-red-500 text-sm text-center">
-                {signUpForm.formState.errors.root.message}
-            </div>
         )}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-primary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-base flex justify-center items-center gap-2"
-        >
-          {isLoading ? (
-            <Loader2 className="animate-spin" />
-          ) : (
-            <>
-              Create Account <ArrowRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
-      </form>
-    </Form>
+        {step === 2 && (
+          <PlanStep
+            key="step2"
+            selectedPlan={currentPlan}
+            onSelect={onPlanSelect}
+            onNext={() => setStep(3)}
+            onBack={() => setStep(1)}
+          />
+        )}
+
+        {step === 3 && (
+          <UserStep
+            key="step3"
+            defaultValues={{
+              firstName: formData.firstName,
+              lastName: formData.lastName,
+              email: formData.email,
+              password: formData.password,
+            }}
+            onNext={onUserSubmit}
+            onBack={() => setStep(2)}
+            isLoading={isLoading}
+          />
+        )}
+
+        {step === 4 && (
+          <VerificationStep
+            key="step4"
+            email={formData.email}
+            onVerify={handleVerification}
+            isLoading={isLoading}
+          />
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

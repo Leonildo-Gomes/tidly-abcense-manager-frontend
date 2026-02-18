@@ -19,6 +19,7 @@ import { ArrowLeft, Loader2, Pencil, Save, Upload, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 // Schema for validation
@@ -98,6 +99,7 @@ export default function CompanyForm({ initialData }: CompanyFormProps) {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
+    toast.success("Company saved successfully!");
     
     // In a real app, you would probably revalidatePath or similar
     router.push("/organization/company");
