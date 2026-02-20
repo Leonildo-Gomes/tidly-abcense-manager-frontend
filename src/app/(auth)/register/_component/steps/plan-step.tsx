@@ -2,16 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
 type PlanStepProps = {
   selectedPlan?: string;
   onSelect: (plan: string) => void;
   onNext: () => void;
   onBack: () => void;
+  isLoading?: boolean;
 };
 
-export default function PlanStep({ selectedPlan, onSelect, onNext, onBack }: PlanStepProps) {
+export default function PlanStep({ selectedPlan, onSelect, onNext, onBack, isLoading }: PlanStepProps) {
   return (
     <motion.div
         initial={{ opacity: 0, x: 20 }}
@@ -49,11 +50,18 @@ export default function PlanStep({ selectedPlan, onSelect, onNext, onBack }: Pla
         </div>
 
         <div className="flex gap-3 pt-4">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onBack} disabled={isLoading}>
             Back
           </Button>
-          <Button onClick={onNext} className="flex-1">
-            Next: Admin Details <ArrowRight className="w-4 h-4 ml-2" />
+          <Button 
+            onClick={(e) => {
+              e.preventDefault();
+              onNext();
+            }} 
+            className="flex-1" 
+            disabled={isLoading}
+          >
+            {isLoading ? <Loader2 className="animate-spin" /> : "Complete Registration"}
           </Button>
         </div>
       </div>

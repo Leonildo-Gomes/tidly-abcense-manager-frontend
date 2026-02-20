@@ -45,6 +45,7 @@ export default function SigninHookForm() {
         identifier: data.email,
         password: data.password,
       });
+      console.log("result", result);
       if (result?.status === "complete") {
         await setActive({ session: result.createdSessionId });
         // Use router.push or window.location if middleware has latency issues

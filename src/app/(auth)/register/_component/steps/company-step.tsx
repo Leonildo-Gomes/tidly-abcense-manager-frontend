@@ -11,12 +11,14 @@ import * as z from "zod";
 
 const companySchema = z.object({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
-  companyNumber: z.string().min(2, "Company number must be at least 2 characters").regex(/^[a-z0-9-]+$/, "Company number can only contain lowercase letters, numbers, and dashes"),
+  companyNumber: z.string().min(2, "Company number must be at least 2 characters").regex(/^[a-zA-Z0-9-_]+$/, "Company number can only contain letters, numbers, dashes, and underscores"),
+  email: z.email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type CompanyStepProps = {
-  defaultValues: { companyName?: string; companyNumber?: string };
-  onNext: (data: { companyName: string; companyNumber: string }) => void;
+  defaultValues: { companyName?: string; companyNumber?: string; email?: string; password?: string };
+  onNext: (data: z.infer<typeof companySchema>) => void;
 };
 
 export default function CompanyStep({ defaultValues, onNext }: CompanyStepProps) {
@@ -25,6 +27,8 @@ export default function CompanyStep({ defaultValues, onNext }: CompanyStepProps)
     defaultValues: {
       companyName: defaultValues.companyName || "",
       companyNumber: defaultValues.companyNumber || "",
+      email: defaultValues.email || "",
+      password: defaultValues.password || "",
     },
   });
 
@@ -63,6 +67,34 @@ export default function CompanyStep({ defaultValues, onNext }: CompanyStepProps)
           {form.formState.errors.companyNumber && (
             <p className="text-xs text-red-500">
               {form.formState.errors.companyNumber.message}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label>Admin Email</Label>
+          <Input
+            type="email"
+            placeholder="admin@company.com"
+            {...form.register("email")}
+            className={form.formState.errors.email ? "border-red-500" : ""}
+          />
+          {form.formState.errors.email && (
+            <p className="text-xs text-red-500">
+              {form.formState.errors.email.message}
+            </p>
+          )}
+        </div>
+        <div className="space-y-2">
+          <Label>Password</Label>
+          <Input
+            type="password"
+            placeholder="••••••••"
+            {...form.register("password")}
+            className={form.formState.errors.password ? "border-red-500" : ""}
+          />
+          {form.formState.errors.password && (
+            <p className="text-xs text-red-500">
+              {form.formState.errors.password.message}
             </p>
           )}
         </div>
