@@ -54,8 +54,13 @@ export default function RegisterHookForm() {
             //slug: formData.companyNumber!,
           });
           if (isMounted) {
-            toast.success("Account & Company created successfully!");
-            router.push("/dashboard");
+            toast.success("Account & Company created!");
+            
+            // Delay navigation to guarantee Clerk's session cookie is fully materialized
+            setTimeout(() => {
+              router.refresh();
+              router.push("/signin");
+            }, 500);
           }
         } catch (err: any) {
           if (isMounted) {
@@ -104,9 +109,10 @@ export default function RegisterHookForm() {
         setIsLoading(false);
         return;
       }
-      console.log("User created successfully! createOrganization", createOrganization);
+      console.log("User created successfully!");
       // 2. Form completed immediately (Email Auth Disabled in Clerk)
       if (signUp.status === "complete") {
+        // redirectUrl in setActive guarantees cookie is written BEFORE org creation
         await setActive({ session: signUp.createdSessionId });
         console.log("Session active, triggering org creation...");
         setPendingOrgCreation(true);
@@ -114,10 +120,10 @@ export default function RegisterHookForm() {
       }
 
       // 3. Prepare Verification (If Email Auth is somehow enabled in the future)
-      if (signUp.status === "missing_requirements") {
+      /*if (signUp.status === "missing_requirements") {
         await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
         setStep(3); // Move to verification UI
-      }
+      }*/
 
     } catch (err: any) {
       console.error("Registration Error:", err);

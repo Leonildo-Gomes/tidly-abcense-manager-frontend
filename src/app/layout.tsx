@@ -1,4 +1,5 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import "@/app/globals.css";
+import ClerkProviderClient from "@/components/clerk-provider-client";
 import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
@@ -17,19 +18,20 @@ export const metadata: Metadata = {
   title: "Tidly",
   description: "Tidly - Absence Management System",
 };
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-     <ClerkProvider>
-        <html lang="en">
+    <ClerkProviderClient>
+      <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-            <Toaster position="top-right" richColors />
-            {children}
+          <Toaster position="top-right" richColors />
+          {children}
         </body>
-        </html>
-     </ClerkProvider>
-  )
+      </html>
+    </ClerkProviderClient>
+  );
 }

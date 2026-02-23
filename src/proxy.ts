@@ -6,7 +6,6 @@ const publicRoutes = createRouteMatcher([
   "/signin",
   "/register",
   "/pricing",
-
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

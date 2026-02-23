@@ -8,7 +8,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useSignIn } from "@clerk/nextjs";
+import { useClerk, useSignIn } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function SigninHookForm() {
   const { isLoaded, signIn, setActive } = useSignIn();
+  const { signOut, client } = useClerk();
   const router = useRouter();
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +36,9 @@ export default function SigninHookForm() {
       password: "",
     },
   });
-
+  console.log("isLoaded", isLoaded);
+  console.log("signIn", signIn);
+  
   if (!isLoaded) return null;
   
   const onSubmit = async (data: FormData) => {
@@ -46,15 +49,33 @@ export default function SigninHookForm() {
         password: data.password,
       });
       console.log("result", result);
+      console.log("result status", result?.status);
       if (result?.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        // Use router.push or window.location if middleware has latency issues
+        
+        // Handle pending "choose organization" task by auto-selecting the first one
+        let orgIdToSet = undefined;
+        try {
+          const session = client.sessions.find((s) => s.id === result.createdSessionId);
+          if (session && session.user) {
+            const orgs = await session.user.getOrganizationMemberships();
+            if (orgs?.data && orgs.data.length > 0) {
+              orgIdToSet = orgs.data[0].organization.id;
+              console.log("Auto-selecting organization:", orgIdToSet);
+            }
+          }
+        } catch (orgErr) {
+          console.error("Failed to fetch org memberships on signin", orgErr);
+        }
+
+        await setActive({ session: result.createdSessionId, organization: orgIdToSet });
+        
         router.push("/home");
       } else {
         console.log(result);
       }
     } catch (error) {
-      console.log(error);
+      console.log( " sigin error",error);
+      await signOut();
     } finally {
       setIsLoading(false);
     }

@@ -145,7 +145,7 @@ export default function Sidebar({...props}: React.ComponentProps<typeof SidebarC
   const { signOut } = useClerk();
   const pathname = usePathname();
   const router = useRouter();
-
+  console.log(" Sidebaruser ",user);
   if (!isLoaded || !isSignedIn) return null;
 
   const handleSignOut = () => {
