@@ -27,63 +27,15 @@ const teams = [
     { id: "2", name: "Sales", companyId: "2" },
 ];
 
-const initialEmployees: Employee[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "john.doe@acme.com",
-    phone: "+1 555-0101",
-    gender: "male",
-    companyId: "1",
-    teamId: "1",
-    role: "Senior Developer",
-    startDate: new Date("2023-01-15"),
-    status: "active",
-    avatar: "/avatars/john.jpg",
-  },
-  {
-    id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@globex.com",
-    phone: "+1 555-0102",
-    gender: "female",
-    companyId: "2",
-    teamId: "2",
-    role: "Sales Manager",
-    startDate: new Date("2023-03-20"),
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Bob Johnson",
-    email: "bob.j@acme.com",
-    phone: "+1 555-0103",
-    gender: "male",
-    companyId: "1",
-    teamId: "1",
-    role: "Junior Developer",
-    startDate: new Date("2024-01-10"),
-    status: "inactive",
-  },
-];
 
-export default function EmployeeList() {
-  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
+export default function EmployeeList ( { employees }: { employees: Employee[] } ) {
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const router = useRouter();
 
+
   const handleStatusToggle = (id: string) => {
-    setEmployees((prev) =>
-      prev.map((emp) =>
-        emp.id === id
-          ? {
-              ...emp,
-              status: emp.status === "active" ? "inactive" : "active",
-            }
-          : emp
-      )
-    );
+    
   };
 
   const getCompanyName = (id: string) => companies.find(c => c.id === id)?.name || "Unknown";

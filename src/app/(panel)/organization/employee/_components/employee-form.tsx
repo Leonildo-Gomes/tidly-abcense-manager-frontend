@@ -23,13 +23,16 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { useOrganization } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { ArrowLeft, CalendarIcon, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { toast } from "sonner";
+import { EmployeeFormValues, employeeSchema } from "../_schemas/employee-schema";
+import { EmployeeFormProps } from "../_types";
 
 // Mock Data
 const companies = [
@@ -42,40 +45,10 @@ const teams = [
     { id: "2", name: "Sales", companyId: "2" },
     { id: "3", name: "Marketing", companyId: "2" },
 ];
-
-// Schema
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }).max( 150, { message: "Name must be at most 150 characters." } ),
-  email: z.email({ message: "Invalid email address." }),
-  phone: z.string().min(10, { message: "Phone must be at least 10 characters." }),
-  gender: z.enum(["male", "female", "other"]).nonoptional({ message: "Gender is required." }),
-  companyId: z.string().min(1, { message: "Company is required." }),
-  teamId: z.string().min(1, { message: "Team is required." }),
-  startDate: z.date().nonoptional({ message: "Start date is required." }),
-  endDate: z.date().optional(),
-  status: z.boolean(),
-});
-
-type EmployeeFormValues = z.infer<typeof formSchema>;
-
-interface EmployeeFormProps {
-  initialData?: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    gender: "male" | "female" | "other";
-    companyId: string;
-    teamId: string;
-    startDate: Date;
-    endDate?: Date;
-    status: "active" | "inactive";
-  } | null;
-}
-
 export default function EmployeeForm({ initialData }: EmployeeFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { organization, isLoaded } = useOrganization();
 
   const title = initialData ? "Edit Employee" : "Create Employee";
   const description = initialData
@@ -90,15 +63,18 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
     gender: initialData?.gender || "male",
     companyId: initialData?.companyId || "",
     teamId: initialData?.teamId || "",
+    role: "org:member", // Default for new invites, ideally populate from existing initialData if role exists
     startDate: initialData?.startDate || new Date(),
     endDate: initialData?.endDate,
     status: initialData ? initialData.status === "active" : true,
   };
 
   const form = useForm<EmployeeFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(employeeSchema),
     defaultValues,
   });
+
+  console.log("form", form.getValues());
 
   // Watch companyId to filter teams
   const selectedCompanyId = form.watch("companyId");
@@ -110,12 +86,36 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
 
   const onSubmit = async (data: EmployeeFormValues) => {
     setIsLoading(true);
-    console.log("Submitting data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    
-    router.push("/organization/employee");
-    router.refresh();
+    try {
+      console.log("Submitting data:", data);
+      
+      // If creating a new employee, send the Clerk Organization Invite
+      if (!initialData) {
+        if (!isLoaded || !organization) {
+          throw new Error("Organization context not loaded.");
+        }
+        
+        await organization.inviteMember({
+          emailAddress: data.email,
+          role: data.role as any, // Clerk types expect specific strings
+        });
+        toast.success(`Invitation sent to ${data.email}!`);
+      } else {
+        // Editing logic here
+        toast.success("Employee updated successfully.");
+      }
+
+      // TODO: Save the rest of the metadata (name, phone, teamId) to the Spring Boot backend
+      // await fetch('/api/employees', { ... })
+
+      router.push("/organization/employee");
+      router.refresh();
+    } catch (err: any) {
+      console.error("Submit Error:", err);
+      toast.error(err.errors?.[0]?.message || err.message || "Failed to save employee.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -263,6 +263,28 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
                                 </FormItem>
                             )}
                         />
+
+                        <FormField
+                            control={form.control}
+                            name="role"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>System Role</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a role" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="org:member">Member</SelectItem>
+                                        <SelectItem value="org:admin">Administrator</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
 
                     {/* Dates */}
@@ -300,7 +322,6 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
                                     disabled={(date) =>
                                     date > new Date() || date < new Date("1900-01-01")
                                     }
-                                    initialFocus
                                 />
                                 </PopoverContent>
                             </Popover>
@@ -342,7 +363,6 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
                                     disabled={(date) =>
                                     date < new Date("1900-01-01")
                                     }
-                                    initialFocus
                                 />
                                 </PopoverContent>
                             </Popover>
