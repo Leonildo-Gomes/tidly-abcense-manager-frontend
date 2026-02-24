@@ -1,5 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
-import { EmployeeFormValues, employeeSchema } from "../_schemas/employee-schema";
+import { EmployeeFormValues, employeeSchema } from "../_schemas/employee.schema";
 
 export async function createEmployee(data: EmployeeFormValues) {
     const { userId } = await auth();

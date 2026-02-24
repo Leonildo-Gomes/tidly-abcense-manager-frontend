@@ -14,13 +14,8 @@ import { Loader2, Lock, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-const schema = z.object({
-  email: z.email("Invalid email address").nonempty("Email is required"),
-  password: z.string().min(8, "Password must be at least 8 characters long").nonempty("Password is required"),
-});
+import { FormData, schema } from "../_schemas/signin.schema";
 
-type FormData = z.infer<typeof schema>;
 
 export default function SigninHookForm() {
   const { isLoaded, signIn, setActive } = useSignIn();
@@ -36,8 +31,6 @@ export default function SigninHookForm() {
       password: "",
     },
   });
-  console.log("isLoaded", isLoaded);
-  console.log("signIn", signIn);
   
   if (!isLoaded) return null;
   
@@ -48,8 +41,7 @@ export default function SigninHookForm() {
         identifier: data.email,
         password: data.password,
       });
-      console.log("result", result);
-      console.log("result status", result?.status);
+      
       if (result?.status === "complete") {
         
         // Handle pending "choose organization" task by auto-selecting the first one
@@ -60,7 +52,7 @@ export default function SigninHookForm() {
             const orgs = await session.user.getOrganizationMemberships();
             if (orgs?.data && orgs.data.length > 0) {
               orgIdToSet = orgs.data[0].organization.id;
-              console.log("Auto-selecting organization:", orgIdToSet);
+              
             }
           }
         } catch (orgErr) {
@@ -68,7 +60,8 @@ export default function SigninHookForm() {
         }
 
         await setActive({ session: result.createdSessionId, organization: orgIdToSet });
-        
+         const token = await client.sessions.find(s => s.id === result.createdSessionId)?.getToken();
+         console.log("token", token);
         router.push("/home");
       } else {
         console.log(result);

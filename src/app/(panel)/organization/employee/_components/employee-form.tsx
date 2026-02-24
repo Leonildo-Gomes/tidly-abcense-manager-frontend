@@ -31,8 +31,8 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { EmployeeFormValues, employeeSchema } from "../_schemas/employee-schema";
-import { EmployeeFormProps } from "../_types";
+import { EmployeeFormValues, employeeSchema } from "../_schemas/employee.schema";
+import { EmployeeFormProps } from "../_types/employee.types";
 
 // Mock Data
 const companies = [

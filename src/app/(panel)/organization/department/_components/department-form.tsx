@@ -25,7 +25,6 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 // Mock Data (Should be fetched from API in real app)
 const companies = [
@@ -40,16 +39,8 @@ const departments = [
   { id: "5", name: "Sales", companyId: "2" },
 ];
 
-// Schema
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }).max( 100, { message: "Name must be at most 100 characters." } ),
-  code: z.string().min(2, { message: "Code must be at least 2 characters." }).max( 15, { message: "Code must be at most 15 characters." } ),
-  companyId: z.string().min(1, { message: "Company is required." }),
-  parentId: z.string().optional(),
-  status: z.boolean(),
-});
+import { DepartmentFormValues, departmentSchema } from "../_schemas/department.schema";
 
-type DepartmentFormValues = z.infer<typeof formSchema>;
 
 interface DepartmentFormProps {
   initialData?: {
@@ -81,7 +72,7 @@ export default function DepartmentForm({ initialData }: DepartmentFormProps) {
   };
 
   const form = useForm<DepartmentFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(departmentSchema),
     defaultValues,
   });
 

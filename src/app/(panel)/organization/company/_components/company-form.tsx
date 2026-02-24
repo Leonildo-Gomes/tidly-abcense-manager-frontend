@@ -20,25 +20,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
-
-// Schema for validation
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Company name must be at least 2 characters.",
-  }).max( 150, {
-    message: "Company name must be at most 150 characters.",
-  }),
-  code: z.string().min(2, {
-    message: "Company code must be at least 2 characters.",
-  }).max( 20, {
-    message: "Company code must be at most 20 characters.",
-  }),
-  status: z.boolean(),
-  logo: z.any().optional(), // Allow File or string
-});
-
-type CompanyFormValues = z.infer<typeof formSchema>;
+import { CompanyFormValues, companySchema } from "../_schemas/company.schema";
 
 interface CompanyFormProps {
   initialData?: {
@@ -70,7 +52,7 @@ export default function CompanyForm({ initialData }: CompanyFormProps) {
   };
 
   const form = useForm<CompanyFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(companySchema),
     defaultValues,
   });
 

@@ -25,7 +25,6 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 
 // Mock Data for Departments
 const departments = [
@@ -36,15 +35,8 @@ const departments = [
   { id: "dep-5", name: "Human Resources" },
 ];
 
-// Schema
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }).max( 100, { message: "Name must be at most 100 characters." } ),
-  code: z.string().min(2, { message: "Code must be at least 2 characters." }).max( 15, { message: "Code must be at most 15 characters." } ),
-  department: z.string().min(1, { message: "Department is required." }),
-  status: z.boolean(),
-});
+import { TeamFormValues, teamSchema } from "../_schemas/team.schema";
 
-type TeamFormValues = z.infer<typeof formSchema>;
 
 interface TeamFormProps {
   initialData?: {
@@ -74,7 +66,7 @@ export default function TeamForm({ initialData }: TeamFormProps) {
   };
 
   const form = useForm<TeamFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(teamSchema),
     defaultValues,
   });
 

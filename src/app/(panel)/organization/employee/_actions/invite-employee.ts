@@ -1,5 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { EmployeeFormValues, employeeSchema } from "../_schemas/employee-schema";
+import { EmployeeFormValues, employeeSchema } from "../_schemas/employee.schema";
 
 export async function inviteEmployee(data: EmployeeFormValues) {
     const { userId, orgId } = await auth();

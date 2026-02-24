@@ -1,6 +1,6 @@
 "use server";
 import EmployeeList from "@/app/(panel)/organization/employee/_components/employee-list";
-import { getAllEmployees } from "./_data-access/get-all-employees";
+import { getAllEmployees } from "./_data-access/employee.query";
 
 export default async function Employee() {
   const employees = await getAllEmployees();
