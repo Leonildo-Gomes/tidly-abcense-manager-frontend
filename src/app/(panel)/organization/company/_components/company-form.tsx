@@ -4,13 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -20,16 +20,12 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import createCompanyAction from "../_actions/company.action";
 import { CompanyFormValues, companySchema } from "../_schemas/company.schema";
+import { Company } from "./types";
 
 interface CompanyFormProps {
-  initialData?: {
-    id: string;
-    name: string;
-    code: string;
-    status: "active" | "inactive";
-    logo?: string;
-  } | null;
+  initialData?: Company | null;
 }
 
 export default function CompanyForm({ initialData }: CompanyFormProps) {
@@ -80,12 +76,17 @@ export default function CompanyForm({ initialData }: CompanyFormProps) {
     }
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    toast.success("Company saved successfully!");
+    const response = await createCompanyAction(data);
+    if (response.error) {
+      toast.error(response.error);
+      return;
+    }
     
-    // In a real app, you would probably revalidatePath or similar
+    toast.success("Company created successfully!");
     router.push("/organization/company");
     router.refresh();
+    
+    setIsLoading(false);
   };
 
   return (

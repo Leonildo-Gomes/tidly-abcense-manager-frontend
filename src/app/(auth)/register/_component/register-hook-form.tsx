@@ -1,5 +1,7 @@
 "use client";
 
+import createCompanyAction from "@/app/(panel)/organization/company/_actions/company.action";
+import { CompanyFormValues } from "@/app/(panel)/organization/company/_schemas/company.schema";
 import { useOrganizationList, useSignUp } from "@clerk/nextjs";
 import { AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -49,11 +51,21 @@ export default function RegisterHookForm() {
       if (pendingOrgCreation && createOrganization) {
         setIsLoading(true);
         try {
-          await createOrganization({
+          const organization = await createOrganization({
             name: formData.companyName!,
             //slug: formData.companyNumber!,
           });
           if (isMounted) {
+            const data: CompanyFormValues = {
+              name: formData.companyName!,
+              code: formData.companyNumber!,
+              status: true,
+            };
+            const response = await createCompanyAction(data);
+            if (response.error) {
+              toast.error(response.error);
+              return;
+            }
             toast.success("Account & Company created!");
             
             // Delay navigation to guarantee Clerk's session cookie is fully materialized

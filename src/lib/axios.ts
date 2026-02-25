@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError } from 'axios';
 
 export const api = axios.create({
     baseURL: 'http://localhost:8080/api',
@@ -8,7 +8,7 @@ export const api = axios.create({
     timeout: 10000,//10 seconds
 });
 
-api.interceptors.request.use(
+/*api.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         const token = localStorage.getItem('token');
         if (token) {
@@ -19,7 +19,7 @@ api.interceptors.request.use(
     (error: AxiosError) => {
         return Promise.reject(error);
     }
-);
+);*/
 
 api.interceptors.response.use(
     (response) => response,

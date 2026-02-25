@@ -1,4 +1,6 @@
 import CompanyForm from "@/app/(panel)/organization/company/_components/company-form";
+import { Company } from "../../_components/types";
+import { getCompanyById } from "../../_data-access/company.query";
 
 // Mock fetching data based on ID - in a real app this would be a db call
 const getCompany = (id: string) => {
@@ -12,16 +14,19 @@ const getCompany = (id: string) => {
 };
 
 export default async function EditCompanyPage({ params }: { params: { id: string } }) {
-    // In Next.js 15+, params is a promise, but in 14 it's an object. 
-    // Assuming 14 based on usage patterns, but let's be safe with async.
-    // Actually, in the latest Next.js canary (15), params need to be awaited. 
-    // For now, standard way:
     const { id } = await Promise.resolve(params); 
-    const company = getCompany(id);
+    const company = await getCompanyById(id);
+    const companies: Company = {
+      id: company.data?.id,
+      name: company.data?.name,
+      code: company.data?.organizationNumber,
+      status: company.data?.isActive ? "active" : "inactive",
+      employees: 0,
+    } as Company;
 
   return (
     <main>
-      <CompanyForm initialData={company} />
+      <CompanyForm initialData={companies} />
     </main>
   );
 }

@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Filter, Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import CompanyGrid from "./company-grid";
 import CompanyTable from "./company-table";
 import { Company } from "./types";
@@ -49,13 +48,13 @@ const initialCompanies: Company[] = [
   },
 ];
 
-export default function CompanyList() {
-  const [companies, setCompanies] = useState<Company[]>(initialCompanies);
+export default function CompanyList({ companies }: { companies: Company[] }) {
+  //const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-
+  
   const handleStatusToggle = (id: string) => {
-    setCompanies((prev) =>
+    /*setCompanies((prev) =>
       prev.map((company) =>
         company.id === id
           ? {
@@ -66,6 +65,7 @@ export default function CompanyList() {
       )
     );
     toast.success("Company status updated successfully!");
+    */
   };
 
   const filteredCompanies = companies.filter(
@@ -73,6 +73,7 @@ export default function CompanyList() {
       company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       company.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   return (
     <div className="space-y-6">
