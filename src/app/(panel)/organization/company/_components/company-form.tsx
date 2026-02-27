@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import createCompanyAction from "../_actions/company.action";
+import createCompanyAction, { updateCompanyAction } from "../_actions/company.action";
 import { CompanyFormValues, companySchema } from "../_schemas/company.schema";
 import { Company } from "./types";
 
@@ -67,26 +67,34 @@ export default function CompanyForm({ initialData }: CompanyFormProps) {
 
   const onSubmit = async (data: CompanyFormValues) => {
     setIsLoading(true);
-    // Simulate API call
-    console.log("Submitting data:", data);
     
     // Check if logo is a file and handle upload logic here (mocked)
     if (data.logo instanceof File) {
         console.log("Uploading file:", data.logo.name);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const response = await createCompanyAction(data);
-    if (response.error) {
-      toast.error(response.error);
-      return;
+    try {
+        let response;
+        if (initialData?.id) {
+            response = await updateCompanyAction(initialData.id, data);
+        } else {
+            response = await createCompanyAction(data);
+        }
+
+        if (response?.error) {
+            toast.error(response.error);
+            return;
+        }
+        
+        toast.success(`Company ${initialData ? 'updated' : 'created'} successfully!`);
+        router.push("/organization/company");
+        router.refresh();
+    } catch (error: any) {
+        console.error("Error submitting company:", error);
+        toast.error(error?.message || "An unexpected error occurred.");
+    } finally {
+        setIsLoading(false);
     }
-    
-    toast.success("Company created successfully!");
-    router.push("/organization/company");
-    router.refresh();
-    
-    setIsLoading(false);
   };
 
   return (
