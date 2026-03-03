@@ -25,37 +25,24 @@ import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import createDepartmentAction, { updateDepartmentAction } from "../_actions/department.action";
 
-// Mock Data (Should be fetched from API in real app)
-const companies = [
-    { id: "1", name: "Acme Corp" },
-    { id: "2", name: "Globex Corporation" },
-    { id: "3", name: "Soylent Corp" },
-];
-
-const departments = [
-  { id: "1", name: "Engineering", companyId: "1" },
-  { id: "2", name: "Product", companyId: "1" },
-  { id: "5", name: "Sales", companyId: "2" },
-];
-
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { DepartmentFormValues, departmentSchema } from "../_schemas/department.schema";
 
-
 interface DepartmentFormProps {
-  initialData?: {
-    id: string;
-    name: string;
-    code: string;
-    companyId: string;
-    parentId?: string;
-    status: "active" | "inactive";
-  } | null;
+  initialData?: DepartmentResponse | null;
+  companies: CompanyResponse[];
+  departments: DepartmentResponse[];
 }
 
-export default function DepartmentForm({ initialData }: DepartmentFormProps) {
+export default function DepartmentForm({ initialData, companies, departments }: DepartmentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  console.log( "initialData", initialData);
 
   const title = initialData ? "Edit Department" : "Create Department";
   const description = initialData
@@ -67,8 +54,8 @@ export default function DepartmentForm({ initialData }: DepartmentFormProps) {
     name: initialData?.name || "",
     code: initialData?.code || "",
     companyId: initialData?.companyId || "",
-    parentId: initialData?.parentId || undefined,
-    status: initialData ? initialData.status === "active" : true,
+    parentId: initialData?.parentDepartmentId || undefined,
+    status: initialData ? initialData.status : true,
   };
 
   const form = useForm<DepartmentFormValues>({
@@ -91,12 +78,29 @@ export default function DepartmentForm({ initialData }: DepartmentFormProps) {
 
   const onSubmit = async (data: DepartmentFormValues) => {
     setIsLoading(true);
-    console.log("Submitting data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    
-    router.push("/organization/department");
-    router.refresh();
+
+    try {
+        let response;
+        if (initialData?.id) {
+            response = await updateDepartmentAction(initialData.id, data);
+        } else {
+            response = await createDepartmentAction(data);
+        }
+
+        if (response?.error) {
+            toast.error(response.error);
+            return;
+        }
+
+        toast.success(`Department ${initialData ? 'updated' : 'created'} successfully!`);
+        router.push("/organization/department");
+        router.refresh();
+    } catch (error: any) {
+        console.error("Error submitting department:", error);
+        toast.error(error?.message || "An unexpected error occurred.");
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -233,8 +237,9 @@ export default function DepartmentForm({ initialData }: DepartmentFormProps) {
                         </div>
                         <FormControl>
                             <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
+                            checked={field.value === true}
+                            onCheckedChange={(checked) => field.onChange(checked)}
+                            className="data-[state=checked]:bg-green-500"
                             />
                         </FormControl>
                         </FormItem>

@@ -1,23 +1,23 @@
 "use client";
 
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Building2, MoreVertical, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Department } from "./types";
 
 interface DepartmentGridProps {
-  departments: Department[];
+  departments: DepartmentResponse[];
   getCompanyName: (id: string) => string;
   getParentName: (id?: string) => string;
   onToggleStatus: (id: string) => void;
@@ -69,7 +69,7 @@ export default function DepartmentGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(dept.id)}>
-                    {dept.status === "active" ? "Deactivate" : "Activate"}
+                    {dept.status ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -79,29 +79,29 @@ export default function DepartmentGrid({
                 <div className="flex items-center gap-2">
                    <span className="text-[10px] uppercase font-medium tracking-wider">{getCompanyName(dept.companyId)}</span>
                 </div>
-                {dept.parentId && (
+                {dept.parentDepartmentId && (
                     <div className="flex items-center gap-2">
-                        <span>Parent: {getParentName(dept.parentId)}</span>
+                        <span>Parent: {dept.parentDepartmentName}</span>
                     </div>
                 )}
               </div>
               
               <div className="flex items-center gap-2 text-muted-foreground">
                   <Users size={14} />
-                  <span>{dept.employees} employees</span>
+                  <span>{0} employees</span>
               </div>
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={dept.status === "active" ? "default" : "secondary"}
+                variant={dept.status ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  dept.status === "active"
+                  dept.status
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {dept.status === "active" ? "Active" : "Inactive"}
+                {dept.status ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

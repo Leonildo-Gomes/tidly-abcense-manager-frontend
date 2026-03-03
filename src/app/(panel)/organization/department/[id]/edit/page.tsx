@@ -1,24 +1,18 @@
-import DepartmentForm from "@/app/(panel)/organization/department/_components/department-form";
+"use server";
 
-// Mock fetch
-const getDepartment = (id: string) => {
-    return {
-        id,
-        name: "Engineering",
-        code: "ENG",
-        companyId: "1",
-        parentId: undefined,
-        status: "active" as const,
-    };
-};
+import { getAllCompanies } from "@/app/(panel)/_shared/company/company.query";
+import { getAllDepartments, getDepartmentById } from "@/app/(panel)/_shared/departments/department.query";
+import DepartmentForm from "@/app/(panel)/organization/department/_components/department-form";
 
 export default async function EditDepartmentPage({ params }: { params: { id: string } }) {
     const { id } = await Promise.resolve(params);
-    const department = getDepartment(id);
+    const { data: department } = await getDepartmentById(id);
+    const { data: companies } = await getAllCompanies();
+    const { data: departments } = await getAllDepartments();
 
   return (
     <main>
-      <DepartmentForm initialData={department} />
+      <DepartmentForm initialData={department || null} companies={companies || []} departments={departments || []} />
     </main>
   );
 }

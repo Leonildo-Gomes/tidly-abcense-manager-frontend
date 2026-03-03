@@ -14,7 +14,7 @@ export default async function CompanyPage() {
     status: res.isActive ? "active" : "inactive", // Valores por defeito pois a API não os inclui
     employees: 0,
   })) || [];
-
+   
   return (
     <main>
       <div className="p-8 space-y-8">

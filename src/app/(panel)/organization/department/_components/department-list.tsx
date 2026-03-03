@@ -1,13 +1,14 @@
 "use client";
 
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -81,14 +82,14 @@ const initialDepartments: Department[] = [
   },
 ];
 
-export default function DepartmentList() {
-  const [departments, setDepartments] = useState<Department[]>(initialDepartments);
+export default function DepartmentList({departments}: {departments: DepartmentResponse[]}) {
+  //const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const router = useRouter();
 
   const handleStatusToggle = (id: string) => {
-    setDepartments((prev) =>
+    /*setDepartments((prev) =>
       prev.map((dept) =>
         dept.id === id
           ? {
@@ -97,7 +98,7 @@ export default function DepartmentList() {
             }
           : dept
       )
-    );
+    );*/
   };
 
   const getCompanyName = (id: string) => companies.find(c => c.id === id)?.name || "Unknown";

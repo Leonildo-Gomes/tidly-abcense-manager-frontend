@@ -1,23 +1,23 @@
 "use client";
 
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Building2, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Department } from "./types";
 
 interface DepartmentTableProps {
-  departments: Department[];
+  departments: DepartmentResponse[];
   getCompanyName: (id: string) => string;
   getParentName: (id?: string) => string;
   onToggleStatus: (id: string) => void;
@@ -74,27 +74,27 @@ export default function DepartmentTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {getCompanyName(dept.companyId)}
+                    {dept.companyName}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {getParentName(dept.parentId)}
+                    {dept.parentDepartmentName}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={dept.status === "active"}
+                        checked={dept.status === true }
                         onCheckedChange={() => onToggleStatus(dept.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          dept.status === "active"
+                          dept.status 
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {dept.status === "active" ? "Active" : "Inactive"}
+                        {dept.status ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>
