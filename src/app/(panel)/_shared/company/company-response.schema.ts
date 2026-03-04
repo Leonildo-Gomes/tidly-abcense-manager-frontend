@@ -5,7 +5,7 @@ export const companyResponseSchema = z.object({
     name: z.string(),
     organizationNumber: z.string(),
     clerkOrgId: z.string().nullable().optional(),
-    isActive: z.boolean(),
+    status: z.boolean(),
     createdAt: z.string().datetime().or(z.string()),
     updatedAt: z.string().datetime().nullable().optional().or(z.string().nullable().optional()),
 });

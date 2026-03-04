@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
 import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,74 +16,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DepartmentGrid from "./department-grid";
 import DepartmentTable from "./department-table";
-import { Department } from "./types";
 
-// Mock Data
-type Company = {
-    id: string;
-    name: string;
-};
-
-const companies: Company[] = [
-    { id: "1", name: "Acme Corp" },
-    { id: "2", name: "Globex Corporation" },
-    { id: "3", name: "Soylent Corp" },
-];
-
-const initialDepartments: Department[] = [
-  {
-    id: "1",
-    name: "Engineering",
-    code: "ENG",
-    companyId: "1",
-    status: "active",
-    employees: 45,
-  },
-  {
-    id: "2",
-    name: "Product",
-    code: "PROD",
-    companyId: "1",
-    status: "active",
-    employees: 12,
-  },
-  {
-    id: "3",
-    name: "Backend",
-    code: "ENG-BE",
-    companyId: "1",
-    parentId: "1", // Child of Engineering
-    status: "active",
-    employees: 20,
-  },
-  {
-    id: "4",
-    name: "Frontend",
-    code: "ENG-FE",
-    companyId: "1",
-    parentId: "1", // Child of Engineering
-    status: "active",
-    employees: 25,
-  },
-  {
-    id: "5",
-    name: "Sales",
-    code: "SALES",
-    companyId: "2",
-    status: "active",
-    employees: 100,
-  },
-  {
-    id: "6",
-    name: "Marketing",
-    code: "MKT",
-    companyId: "2",
-    status: "inactive",
-    employees: 5,
-  },
-];
-
-export default function DepartmentList({departments}: {departments: DepartmentResponse[]}) {
+export default function DepartmentList({
+  departments,
+  companies,
+}: {
+  departments: DepartmentResponse[];
+  companies: CompanyResponse[];
+}) {
   //const [departments, setDepartments] = useState<Department[]>(initialDepartments);
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");

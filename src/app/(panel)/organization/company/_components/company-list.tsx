@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Filter, Plus, Search } from "lucide-react";
@@ -48,7 +49,7 @@ const initialCompanies: Company[] = [
   },
 ];
 
-export default function CompanyList({ companies }: { companies: Company[] }) {
+export default function CompanyList({ companies }: { companies: CompanyResponse[] }) {
   //const [companies, setCompanies] = useState<Company[]>(initialCompanies);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function CompanyList({ companies }: { companies: Company[] }) {
   const filteredCompanies = companies.filter(
     (company) =>
       company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.code.toLowerCase().includes(searchTerm.toLowerCase())
+      company.organizationNumber.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
 

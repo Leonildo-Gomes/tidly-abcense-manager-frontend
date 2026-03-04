@@ -1,5 +1,6 @@
 "use client";
 
+import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -67,14 +68,14 @@ const departments = [
   "Human Resources",
 ];
 
-export default function TeamList() {
-  const [teams, setTeams] = useState<Team[]>(initialTeams);
+export default function TeamList( { teams }: { teams: TeamResponse[] }) {
+  //const [teams, setTeams] = useState<Team[]>(initialTeams);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
   const router = useRouter();
 
   const handleStatusToggle = (id: string) => {
-    setTeams((prev) =>
+    /*setTeams((prev) =>
       prev.map((team) =>
         team.id === id
           ? {
@@ -83,7 +84,7 @@ export default function TeamList() {
             }
           : team
       )
-    );
+    );*/
   };
 
   const filteredTeams = teams.filter((team) => {
@@ -92,7 +93,7 @@ export default function TeamList() {
       team.code.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesDepartment = 
-        departmentFilter === "all" || team.department === departmentFilter;
+        departmentFilter === "all" || team.departmentName === departmentFilter;
 
     return matchesSearch && matchesDepartment;
   });

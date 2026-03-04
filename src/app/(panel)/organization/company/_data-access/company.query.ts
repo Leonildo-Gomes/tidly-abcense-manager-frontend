@@ -8,6 +8,7 @@ async function getAllCompanies(): Promise<ApiResponse<CompanyResponse[]>> {
     try {
         const { data } = await apiServer.get<CompanyResponse[]>("/v1/companies");
         return {
+
             success: true,
             data,
             statusCode: 200

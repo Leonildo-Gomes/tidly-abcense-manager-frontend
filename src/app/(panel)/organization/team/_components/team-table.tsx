@@ -1,23 +1,23 @@
 "use client";
 
+import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Team } from "./types";
 
 interface TeamTableProps {
-  teams: Team[];
+  teams: TeamResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -68,28 +68,28 @@ export default function TeamTable({ teams, onToggleStatus }: TeamTableProps) {
                       variant="secondary"
                       className="font-normal bg-blue-50 text-blue-700 hover:bg-blue-50"
                     >
-                      {team.department}
+                      {team.departmentName}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {team.members}
+                    {0}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={team.status === "active"}
+                        checked={team.status }
                         onCheckedChange={() => onToggleStatus(team.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          team.status === "active"
+                          team.status 
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {team.status === "active" ? "Active" : "Inactive"}
+                        {team.status}
                       </span>
                     </div>
                   </TableCell>

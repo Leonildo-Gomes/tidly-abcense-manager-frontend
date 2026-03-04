@@ -1,24 +1,24 @@
 "use client";
 
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { MoreVertical, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Company } from "./types";
 
 interface CompanyGridProps {
-  companies: Company[];
+  companies: CompanyResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -39,7 +39,7 @@ export default function CompanyGrid({
           <Card key={company.id} className="overflow-hidden">
             <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
               <Avatar className="h-10 w-10 bg-gray-100 border border-gray-200">
-                <AvatarImage src={company.logo} alt={company.name} />
+                <AvatarImage src={""} alt={company.name} />
                 <AvatarFallback className="text-gray-500 bg-gray-50 font-medium">
                   {company.name.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
@@ -51,7 +51,7 @@ export default function CompanyGrid({
                     variant="outline"
                     className="font-mono text-[10px] px-1 py-0 h-4 bg-gray-50 text-gray-600 border-gray-200"
                   >
-                    {company.code}
+                    {company.organizationNumber}
                   </Badge>
                 </div>
               </div>
@@ -74,7 +74,7 @@ export default function CompanyGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(company.id)}>
-                    {company.status === "active" ? "Deactivate" : "Activate"}
+                    {company.status  ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -83,21 +83,21 @@ export default function CompanyGrid({
               <div className="flex items-center justify-between text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Users size={14} />
-                  <span>{company.employees.toLocaleString()} employees</span>
+                  <span>{0} employees</span>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={company.status === "active" ? "default" : "secondary"}
+                variant={company.status ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  company.status === "active"
+                  company.status
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {company.status === "active" ? "Active" : "Inactive"}
+                {company.status ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

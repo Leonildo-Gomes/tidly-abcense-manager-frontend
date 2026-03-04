@@ -1,24 +1,24 @@
 "use client";
 
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Company } from "./types";
 
 interface CompanyTableProps {
-  companies: Company[];
+  companies: CompanyResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -54,7 +54,7 @@ export default function CompanyTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9 bg-gray-100 border border-gray-200">
-                        <AvatarImage src={company.logo} alt={company.name} />
+                        <AvatarImage src={""} alt={company.name} />
                         <AvatarFallback className="text-gray-500 bg-gray-50">
                           {company.name.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
@@ -71,28 +71,28 @@ export default function CompanyTable({
                       variant="outline"
                       className="font-mono text-xs bg-gray-50 text-gray-600 border-gray-200"
                     >
-                      {company.code}
+                      {company.organizationNumber}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {company.employees.toLocaleString()}
+                    {0}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={company.status === "active"}
+                        checked={company.status}
                         onCheckedChange={() => onToggleStatus(company.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          company.status === "active"
+                          company.status
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {company.status === "active" ? "Active" : "Inactive"}
+                        {company.status ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

@@ -26,29 +26,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
-// Mock Data for Departments
-const departments = [
-  { id: "dep-1", name: "Engineering" },
-  { id: "dep-2", name: "Product" },
-  { id: "dep-3", name: "Sales" },
-  { id: "dep-4", name: "Marketing" },
-  { id: "dep-5", name: "Human Resources" },
-];
-
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
+import { toast } from "sonner";
+import createTeamAction, { updateTeamAction } from "../_actions/team.action";
 import { TeamFormValues, teamSchema } from "../_schemas/team.schema";
 
-
 interface TeamFormProps {
-  initialData?: {
-    id: string;
-    name: string;
-    code: string;
-    department: string;
-    status: "active" | "inactive";
-  } | null;
+  initialData?: TeamResponse | null;
+  departments: DepartmentResponse[];
 }
 
-export default function TeamForm({ initialData }: TeamFormProps) {
+export default function TeamForm({ initialData, departments }: TeamFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -61,8 +50,8 @@ export default function TeamForm({ initialData }: TeamFormProps) {
   const defaultValues: TeamFormValues = {
     name: initialData?.name || "",
     code: initialData?.code || "",
-    department: initialData?.department || "",
-    status: initialData ? initialData.status === "active" : true,
+    departmentId: initialData?.departmentId || "",
+    status: initialData ? initialData.status : true,
   };
 
   const form = useForm<TeamFormValues>({
@@ -72,12 +61,29 @@ export default function TeamForm({ initialData }: TeamFormProps) {
 
   const onSubmit = async (data: TeamFormValues) => {
     setIsLoading(true);
-    console.log("Submitting data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    
-    router.push("/organization/team");
-    router.refresh();
+
+    try {
+        let response;
+        if (initialData?.id) {
+            response = await updateTeamAction(initialData.id, data);
+        } else {
+            response = await createTeamAction(data);
+        }
+
+        if (response?.error) {
+            toast.error(response.error);
+            return;
+        }
+
+        toast.success(`Team ${initialData ? 'updated' : 'created'} successfully!`);
+        router.push("/organization/team");
+        router.refresh();
+    } catch (error: any) {
+        console.error("Error submitting team:", error);
+        toast.error(error?.message || "An unexpected error occurred.");
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -134,7 +140,7 @@ export default function TeamForm({ initialData }: TeamFormProps) {
                     <div className="grid gap-4 md:grid-cols-2">
                         <FormField
                             control={form.control}
-                            name="department"
+                            name="departmentId"
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Department</FormLabel>
@@ -146,7 +152,7 @@ export default function TeamForm({ initialData }: TeamFormProps) {
                                     </FormControl>
                                     <SelectContent>
                                         {departments.map(dept => (
-                                            <SelectItem key={dept.id} value={dept.name}>
+                                            <SelectItem key={dept.id} value={dept.id}>
                                                 {dept.name}
                                             </SelectItem>
                                         ))}

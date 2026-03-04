@@ -1,23 +1,23 @@
 "use client";
 
+import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Building2, MoreVertical, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Team } from "./types";
 
 interface TeamGridProps {
-  teams: Team[];
+  teams: TeamResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -62,7 +62,7 @@ export default function TeamGrid({ teams, onToggleStatus }: TeamGridProps) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(team.id)}>
-                    {team.status === "active" ? "Deactivate" : "Activate"}
+                    {team.status ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -72,25 +72,25 @@ export default function TeamGrid({ teams, onToggleStatus }: TeamGridProps) {
               <div className="flex items-center justify-between text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Building2 size={14} />
-                  <span>{team.department}</span>
+                  <span>{team.departmentName}</span>
                 </div>
                  <div className="flex items-center gap-2">
                   <Users size={14} />
-                  <span>{team.members} members</span>
+                  <span>{0} members</span>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={team.status === "active" ? "default" : "secondary"}
+                variant={team.status ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  team.status === "active"
+                  team.status
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {team.status === "active" ? "Active" : "Inactive"}
+                {team.status ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>
