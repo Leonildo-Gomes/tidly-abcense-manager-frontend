@@ -1,5 +1,6 @@
 "use client";
-
+import { Gender, GENDER_OPTIONS } from "@/app/(panel)/_shared/employee/gender.enum";
+import { Role, ROLE_OPTIONS } from "@/app/(panel)/_shared/employee/role.enum";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,21 +32,11 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { createEmployee, updateEmployee } from "../_actions/create-employee.action";
 import { EmployeeFormValues, employeeSchema } from "../_schemas/employee.schema";
 import { EmployeeFormProps } from "../_types/employee.types";
 
-// Mock Data
-const companies = [
-    { id: "1", name: "Acme Corp" },
-    { id: "2", name: "Globex Corp" },
-];
-
-const teams = [
-    { id: "1", name: "Engineering", companyId: "1" },
-    { id: "2", name: "Sales", companyId: "2" },
-    { id: "3", name: "Marketing", companyId: "2" },
-];
-export default function EmployeeForm({ initialData }: EmployeeFormProps) {
+export default function EmployeeForm({ initialData, companies, departments, teams }: EmployeeFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const { organization, isLoaded } = useOrganization();
@@ -60,39 +51,60 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
     name: initialData?.name || "",
     email: initialData?.email || "",
     phone: initialData?.phone || "",
-    gender: initialData?.gender || "male",
+    gender: initialData?.gender || Gender.MALE,
     companyId: initialData?.companyId || "",
     teamId: initialData?.teamId || "",
-    role: "org:member", // Default for new invites, ideally populate from existing initialData if role exists
+    role: initialData?.role || Role.MEMBER, // Default for new invites
     startDate: initialData?.startDate || new Date(),
     endDate: initialData?.endDate,
-    status: initialData ? initialData.status === "active" : true,
+    status: initialData?.status || true, 
   };
+    
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeSchema),
     defaultValues,
   });
 
-  console.log("form", form.getValues());
-
   // Watch companyId to filter teams
   const selectedCompanyId = form.watch("companyId");
 
   const filteredTeams = useMemo(() => {
     if (!selectedCompanyId) return [];
-    return teams.filter(t => t.companyId === selectedCompanyId);
-  }, [selectedCompanyId]);
+    
+    // Find all departments that belong to the selected company
+    const companyDeptIds = departments
+        .filter(d => d.companyId === selectedCompanyId)
+        .map(d => d.id);
+        
+    // Return only teams that belong to those departments
+    return teams.filter(t => companyDeptIds.includes(t.departmentId));
+  }, [selectedCompanyId, departments, teams]);
 
   const onSubmit = async (data: EmployeeFormValues) => {
     setIsLoading(true);
     try {
       console.log("Submitting data:", data);
-      
+       let response;
       // If creating a new employee, send the Clerk Organization Invite
-      if (!initialData) {
+      if (initialData?.id) {
+       
+        // Editing logic here
+        response = await updateEmployee(initialData.id, data);
+        if (response?.error) {
+          toast.error(response.error);
+          return;
+        }
+        toast.success("Employee updated successfully.");
+        
+      } else {
         if (!isLoaded || !organization) {
           throw new Error("Organization context not loaded.");
+        }
+        response = await createEmployee(data);
+        if (response?.error) {
+          toast.error(response.error);
+          return;
         }
         
         await organization.inviteMember({
@@ -100,14 +112,8 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
           role: data.role as any, // Clerk types expect specific strings
         });
         toast.success(`Invitation sent to ${data.email}!`);
-      } else {
-        // Editing logic here
-        toast.success("Employee updated successfully.");
+        
       }
-
-      // TODO: Save the rest of the metadata (name, phone, teamId) to the Spring Boot backend
-      // await fetch('/api/employees', { ... })
-
       router.push("/organization/employee");
       router.refresh();
     } catch (err: any) {
@@ -193,9 +199,11 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
                                     </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="male">Male</SelectItem>
-                                        <SelectItem value="female">Female</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
+                                        {GENDER_OPTIONS.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -277,8 +285,11 @@ export default function EmployeeForm({ initialData }: EmployeeFormProps) {
                                     </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value="org:member">Member</SelectItem>
-                                        <SelectItem value="org:admin">Administrator</SelectItem>
+                                        {ROLE_OPTIONS.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />

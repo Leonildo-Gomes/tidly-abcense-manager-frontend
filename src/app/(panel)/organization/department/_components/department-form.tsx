@@ -38,7 +38,7 @@ interface DepartmentFormProps {
   departments: DepartmentResponse[];
 }
 
-export default function DepartmentForm({ initialData, companies, departments }: DepartmentFormProps) {
+export default  function DepartmentForm({ initialData, companies, departments }: DepartmentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -73,7 +73,7 @@ export default function DepartmentForm({ initialData, companies, departments }: 
     return departments.filter(d => 
         d.companyId === selectedCompanyId && 
         d.id !== initialData?.id
-    );
+    );  
   }, [selectedCompanyId, initialData?.id]);
 
   const onSubmit = async (data: DepartmentFormValues) => {

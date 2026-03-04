@@ -1,5 +1,6 @@
 "use client";
 
+import { EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import EmployeeGrid from "./employee-grid";
 import EmployeeTable from "./employee-table";
-import { Employee } from "./types";
 
 // Mock Data
 const companies = [
@@ -28,7 +28,7 @@ const teams = [
 ];
 
 
-export default function EmployeeList ( { employees }: { employees: Employee[] } ) {
+export default function EmployeeList ( { employees }: { employees: EmployeeResponse[] } ) {
   const [searchTerm, setSearchTerm] = useState("");
   const [companyFilter, setCompanyFilter] = useState<string>("all");
   const router = useRouter();

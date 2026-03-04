@@ -1,16 +1,11 @@
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
+import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 
 export interface EmployeeFormProps {
-    initialData?: {
-        id: string;
-        name: string;
-        email: string;
-        phone: string;
-        gender: "male" | "female" | "other";
-        companyId: string;
-        teamId: string;
-        role?: "org:admin" | "org:member";
-        startDate: Date;
-        endDate?: Date;
-        status: "active" | "inactive";
-    } | null;
+    initialData?: EmployeeResponse | null;
+    companies: CompanyResponse[];
+    departments: DepartmentResponse[];
+    teams: TeamResponse[];
 }

@@ -1,24 +1,24 @@
 "use client";
 
+import { EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Mail, Pencil, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Employee } from "./types";
 
 interface EmployeeTableProps {
-  employees: Employee[];
+  employees: EmployeeResponse[];
   getCompanyName: (id: string) => string;
   getTeamName: (id: string) => string;
   onToggleStatus: (id: string) => void;
@@ -59,7 +59,7 @@ export default function EmployeeTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9 bg-gray-100 border border-gray-200">
-                        <AvatarImage src={emp.avatar} alt={emp.name} />
+                        <AvatarImage src={""} alt={emp.name} />
                         <AvatarFallback className="text-gray-500 bg-gray-50">
                           {emp.name.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
@@ -100,19 +100,19 @@ export default function EmployeeTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={emp.status === "active"}
+                        checked={emp.status === true}
                         onCheckedChange={() => onToggleStatus(emp.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          emp.status === "active"
+                          emp.status
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {emp.status === "active" ? "Active" : "Inactive"}
+                        {emp.status ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

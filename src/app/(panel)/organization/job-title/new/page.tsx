@@ -1,3 +1,4 @@
+"use server";
 import { getAllCompanies } from "@/app/(panel)/_shared/company/company.query";
 import JobTitleForm from "../_components/job-title-form";
 

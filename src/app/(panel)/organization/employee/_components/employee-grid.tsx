@@ -1,25 +1,25 @@
 "use client";
 
+import { EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarDays, Mail, MoreVertical, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Employee } from "./types";
 
 interface EmployeeGridProps {
-  employees: Employee[];
+  employees: EmployeeResponse[];
   getCompanyName: (id: string) => string;
   getTeamName: (id: string) => string;
   onToggleStatus: (id: string) => void;
@@ -44,7 +44,7 @@ export default function EmployeeGrid({
           <Card key={emp.id} className="overflow-hidden">
             <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
               <Avatar className="h-10 w-10 bg-gray-100 border border-gray-200">
-                <AvatarImage src={emp.avatar} alt={emp.name} />
+                <AvatarImage src={""} alt={emp.name} />
                 <AvatarFallback className="text-gray-500 bg-gray-50">
                   {emp.name.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
@@ -70,7 +70,7 @@ export default function EmployeeGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(emp.id)}>
-                    {emp.status === "active" ? "Deactivate" : "Activate"}
+                    {emp.status ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -93,15 +93,15 @@ export default function EmployeeGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={emp.status === "active" ? "default" : "secondary"}
+                variant={emp.status ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  emp.status === "active"
+                  emp.status
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {emp.status === "active" ? "Active" : "Inactive"}
+                {emp.status ? "Active" : "Inactive"}
               </Badge>
               <span className="text-[10px] uppercase font-medium text-muted-foreground tracking-wider">
                 {getCompanyName(emp.companyId)}
