@@ -1,5 +1,6 @@
 "use client";
 
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
 import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +69,7 @@ const departments = [
   "Human Resources",
 ];
 
-export default function TeamList( { teams }: { teams: TeamResponse[] }) {
+export default function TeamList( { teams, departments }: { teams: TeamResponse[]; departments: DepartmentResponse[] }) {
   //const [teams, setTeams] = useState<Team[]>(initialTeams);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("all");
@@ -127,8 +128,8 @@ export default function TeamList( { teams }: { teams: TeamResponse[] }) {
                     <SelectContent>
                         <SelectItem value="all">All Departments</SelectItem>
                         {departments.map((dept) => (
-                            <SelectItem key={dept} value={dept}>
-                                {dept}
+                            <SelectItem key={dept.id} value={dept.name}>
+                                {dept.name}
                             </SelectItem>
                         ))}
                     </SelectContent>

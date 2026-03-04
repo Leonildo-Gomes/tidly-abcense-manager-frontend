@@ -1,8 +1,10 @@
+"use server";
 import { getAllCompanies } from "@/app/(panel)/_shared/company/company.query";
 import CompanyList from "@/app/(panel)/organization/company/_components/company-list";
 
 export default async function CompanyPage() {
   const { data: companies } = await getAllCompanies();
+  
   
  
    

@@ -10,6 +10,7 @@ import {
   ClipboardList,
   FileText,
   Home,
+  IdCardLanyard,
   Landmark,
   LogOut,
   Settings,
@@ -79,6 +80,11 @@ const data = {
           title: "Companies",
           url: "/organization/company",
           icon: Landmark,
+        },
+        {
+          title: "Job Titles",
+          url: "/organization/job-title",
+          icon: IdCardLanyard,
         },
         {
           title: "Departments",
