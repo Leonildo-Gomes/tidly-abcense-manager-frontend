@@ -85,9 +85,13 @@ src/
 └── hooks/                       # Custom React hooks
 ```
 
+## 5. Screenshots
+
+![Tidly Application Screenshot](screen-shots/image.png)
+
 ---
 
-## 5. Getting Started
+## 6. Getting Started
 
 First, run the development server:
 
@@ -103,7 +107,7 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 6. Learn More
+## 7. Learn More
 
 To learn more about the technologies used:
 
