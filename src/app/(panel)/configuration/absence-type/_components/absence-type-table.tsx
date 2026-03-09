@@ -1,23 +1,23 @@
 "use client";
 
+import { AbsenceTypeResponse } from "@/app/(panel)/_shared/absence-type/absence-type-response.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { Pencil } from "lucide-react";
+import { Paperclip, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AbsenceType } from "./types";
 
 interface AbsenceTypeTableProps {
-  absenceTypes: AbsenceType[];
+  absenceTypes: AbsenceTypeResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -35,8 +35,8 @@ export default function AbsenceTypeTable({
             <TableRow>
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Code</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Unit</TableHead>
+              <TableHead>Description</TableHead>
+              <TableHead>Required Attachment</TableHead>
               <TableHead>Color</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -68,15 +68,19 @@ export default function AbsenceTypeTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className="font-normal capitalize bg-blue-50 text-blue-700 hover:bg-blue-50"
-                    >
-                      {type.category}
-                    </Badge>
+                    <span className="text-muted-foreground text-sm truncate max-w-[200px] inline-block">
+                      {type.description || "-"}
+                    </span>
                   </TableCell>
-                  <TableCell className="capitalize text-muted-foreground text-sm">
-                    {type.unit}
+                  <TableCell>
+                    {type.requiredAttachment ? (
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                        <Paperclip size={12} className="mr-1" />
+                        Required
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">No</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div
@@ -88,19 +92,19 @@ export default function AbsenceTypeTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={type.status === "active"}
+                        checked={type.isActive}
                         onCheckedChange={() => onToggleStatus(type.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          type.status === "active"
+                          type.isActive
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {type.status === "active" ? "Active" : "Inactive"}
+                        {type.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

@@ -55,7 +55,7 @@ export default  function DepartmentForm({ initialData, companies, departments }:
     code: initialData?.code || "",
     companyId: initialData?.companyId || "",
     parentId: initialData?.parentDepartmentId || undefined,
-    status: initialData ? initialData.status : true,
+    status: initialData ? initialData.isActive : true,
   };
 
   const form = useForm<DepartmentFormValues>({

@@ -1,6 +1,6 @@
 import CompanyForm from "@/app/(panel)/organization/company/_components/company-form";
+import { getCompanyById } from "../../../../_shared/company/company.query";
 import { Company } from "../../_components/types";
-import { getCompanyById } from "../../_data-access/company.query";
 
 
 

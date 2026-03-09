@@ -1,5 +1,6 @@
 "use client";
 
+import { AbsenceTypeResponse } from "@/app/(panel)/_shared/absence-type/absence-type-response.schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -15,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { toast } from "sonner";
+import { createAbsenceType, updateAbsenceType } from "../_actions/absence-type.action";
+import { AbsenceTypeFormValues, absenceTypeSchema } from "../_schemas/absence-type.schema";
 
 // Colors for selection
 const colorOptions = [
@@ -33,19 +36,10 @@ const colorOptions = [
     { name: "Gray", value: "#6b7280" },
 ];
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  code: z.string().min(2, { message: "Code must be at least 2 characters." }),
-  color: z.string().min(1, { message: "Color is required." }),
-  required_attachment: z.boolean(),
-  description: z.string().optional(),
-  status: z.boolean(),
-});
 
-type FormValues = z.infer<typeof formSchema>;
 
 interface AbsenceTypeFormProps {
-  initialData?: FormValues & { id: string };
+  initialData?: AbsenceTypeResponse;
   isEditMode?: boolean;
 }
 
@@ -53,26 +47,45 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: "",
-      code: "",
-      color: "#3b82f6",
-      required_attachment: false,
-      description: "",
-      status: true,
+  const form = useForm<AbsenceTypeFormValues>({
+    resolver: zodResolver(absenceTypeSchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      code: initialData?.code || "",
+      color: initialData?.color || "#3b82f6",
+      required_attachment: initialData?.requiredAttachment || false,
+      description: initialData?.description || "",
+      status: initialData?.isActive || true,
     },
   });
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: AbsenceTypeFormValues) {
     setIsSubmitting(true);
-    // Simulate API call
-    console.log(values);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      let response;
+      if (isEditMode && initialData?.id) {
+        response = await updateAbsenceType(initialData.id, values);
+        if (!response.success) {
+          toast.error(response.error);
+          return;
+        }
+        toast.success("Absence type updated successfully.");
+      } else {
+        response = await createAbsenceType(values);
+        if (!response.success) {
+          toast.error(response.error);
+          return;
+        }
+        toast.success("Absence type created successfully.");
+      }
       router.push("/configuration/absence-type");
-    }, 1000);
+      router.refresh();
+    } catch (err: any) {
+      console.error("Submit Error:", err);
+      toast.error(err.message || "Failed to save absence type.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -236,9 +249,18 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="gap-2">
-                  <Save size={16} />
-                  {isSubmitting ? "Saving..." : isEditMode ? "Update Type" : "Create Type"}
+                <Button type="submit" disabled={isSubmitting} className="gap-2 min-w-[150px]">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={16} />
+                      {isEditMode ? "Update Type" : "Create Type"}
+                    </>
+                  )}
                 </Button>
               </div>
             </form>

@@ -12,12 +12,12 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { Calendar, MoreVertical, Tag } from "lucide-react";
+import { Calendar, MoreVertical, Paperclip, Text } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AbsenceType } from "./types";
+import { AbsenceTypeResponse } from "@/app/(panel)/_shared/absence-type/absence-type-response.schema";
 
 interface AbsenceTypeGridProps {
-  absenceTypes: AbsenceType[];
+  absenceTypes: AbsenceTypeResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -73,33 +73,40 @@ export default function AbsenceTypeGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(type.id)}>
-                    {type.status === "active" ? "Deactivate" : "Activate"}
+                    {type.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </CardHeader>
             <CardContent className="p-4 pt-2 pb-3 space-y-2 text-sm">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Tag size={14} />
-                  <span className="capitalize">{type.category}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="capitalize">{type.unit}</span>
+              <div className="flex items-center justify-between text-muted-foreground w-full">
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex items-start gap-2">
+                    <Text size={14} className="mt-0.5 shrink-0" />
+                    <span className="line-clamp-2">{type.description || "No description"}</span>
+                  </div>
+                  {type.requiredAttachment && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="bg-blue-50 text-blue-700 font-normal">
+                        <Paperclip size={12} className="mr-1" />
+                        Required Attachment
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={type.status === "active" ? "default" : "secondary"}
+                variant={type.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  type.status === "active"
+                  type.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {type.status === "active" ? "Active" : "Inactive"}
+                {type.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

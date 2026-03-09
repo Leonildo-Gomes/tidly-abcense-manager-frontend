@@ -1,22 +1,10 @@
-"use client";
+"use server";
 
-import { useParams } from "next/navigation";
+import { getAbsenceTypeById } from "@/app/(panel)/_shared/absence-type/absence-type.query";
 import AbsenceTypeForm from "../../_components/absence-type-form";
 
-export default function EditAbsenceTypePage() {
-  const params = useParams();
-  const id = params.id as string;
-
-  // In a real app, fetch data based on ID
-  const mockData = {
-    id,
-    name: "Vacation",
-    code: "VAC",
-    category: "vacation" as const,
-    unit: "days" as const,
-    color: "#3b82f6",
-    status: true,
-  };
-
-  return <AbsenceTypeForm initialData={mockData} isEditMode />;
+export default async function EditAbsenceTypePage({ params }: { params: { id: string } }) {
+  const { id } = await Promise.resolve(params);
+  const absenceType = await getAbsenceTypeById(id);
+  return <AbsenceTypeForm initialData={absenceType.data} isEditMode />;
 }

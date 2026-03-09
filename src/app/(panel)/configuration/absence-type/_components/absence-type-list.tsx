@@ -5,76 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AbsenceTypeResponse } from "@/app/(panel)/_shared/absence-type/absence-type-response.schema";
 import AbsenceTypeGrid from "./absence-type-grid";
 import AbsenceTypeTable from "./absence-type-table";
-import { AbsenceType } from "./types";
 
-// Mock Data
-const initialAbsenceTypes: AbsenceType[] = [
-  {
-    id: "1",
-    name: "Vacation",
-    code: "VAC",
-    category: "vacation",
-    unit: "days",
-    status: "active",
-    color: "#3b82f6", // Blue
-  },
-  {
-    id: "2",
-    name: "Sick Leave",
-    code: "SICK",
-    category: "sick",
-    unit: "days",
-    status: "active",
-    color: "#ef4444", // Red
-  },
-  {
-    id: "3",
-    name: "Remote Work",
-    code: "RMT",
-    category: "other",
-    unit: "days",
-    status: "active",
-    color: "#10b981", // Green
-  },
-  {
-    id: "4",
-    name: "Doctor Appointment",
-    code: "DOC",
-    category: "sick",
-    unit: "hours",
-    status: "active",
-    color: "#f59e0b", // Amber
-  },
-  {
-    id: "5",
-    name: "Unpaid Leave",
-    code: "UNP",
-    category: "other",
-    unit: "days",
-    status: "inactive",
-    color: "#6b7280", // Gray
-  },
-];
-
-export default function AbsenceTypeList() {
-  const [absenceTypes, setAbsenceTypes] =
-    useState<AbsenceType[]>(initialAbsenceTypes);
+export default function AbsenceTypeList({ absenceTypes }: { absenceTypes: AbsenceTypeResponse[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
   const handleStatusToggle = (id: string) => {
-    setAbsenceTypes((prev) =>
-      prev.map((type) =>
-        type.id === id
-          ? {
-              ...type,
-              status: type.status === "active" ? "inactive" : "active",
-            }
-          : type
-      )
-    );
+    // In a real scenario, this would trigger a Server Action
+    // updateAbsenceTypeStatus(id, newStatus).then(() => router.refresh())
   };
 
   const filteredTypes = absenceTypes.filter((type) =>

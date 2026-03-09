@@ -1,6 +1,10 @@
+import { getAllAbsenceTypes } from "../../_shared/absence-type/absence-type.query";
 import AbsenceTypeList from "./_components/absence-type-list";
 
-export default function AbsenceTypePage() {
+export default async function AbsenceTypePage() {
+  const response = await getAllAbsenceTypes();
+  const absenceTypes = response.data || [];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -12,7 +16,7 @@ export default function AbsenceTypePage() {
         </p>
       </div>
 
-      <AbsenceTypeList />
+      <AbsenceTypeList absenceTypes={absenceTypes} />
     </div>
   );
 }
