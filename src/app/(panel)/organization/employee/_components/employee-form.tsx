@@ -57,7 +57,7 @@ export default function EmployeeForm({ initialData, companies, departments, team
     role: initialData?.role || Role.MEMBER, // Default for new invites
     startDate: initialData?.startDate || new Date(),
     endDate: initialData?.endDate,
-    status: initialData?.status || true, 
+    status: initialData?.isActive || true, 
   };
     
 

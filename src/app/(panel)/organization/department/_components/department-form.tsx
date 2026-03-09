@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import createDepartmentAction, { updateDepartmentAction } from "../_actions/department.action";
 
 import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
-import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
 import { DepartmentFormValues, departmentSchema } from "../_schemas/department.schema";
 
 interface DepartmentFormProps {

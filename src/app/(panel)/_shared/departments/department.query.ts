@@ -1,6 +1,6 @@
 "use server";
 import { apiServer } from "@/lib/axios-server";
-import { DepartmentResponse } from "./department.schema";
+import { DepartmentResponse } from "./department-response.schema";
 
 export async function getAllDepartments() {
     try {

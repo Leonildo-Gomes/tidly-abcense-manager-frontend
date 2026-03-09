@@ -7,7 +7,7 @@ const TeamResponseSchema = z.object({
     code: z.string(),
     departmentId: z.uuid(),
     departmentName: z.string(),
-    status: z.boolean(),
+    isActive: z.boolean(),
 });
 
 export type TeamResponse = z.infer<typeof TeamResponseSchema>;

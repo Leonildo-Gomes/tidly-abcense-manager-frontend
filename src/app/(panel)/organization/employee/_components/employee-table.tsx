@@ -69,7 +69,7 @@ export default function EmployeeTable({
                           {emp.name}
                         </span>
                         <span className="text-xs text-muted-foreground">
-                          {getCompanyName(emp.companyId)}
+                          {emp.companyName}
                         </span>
                       </div>
                     </div>
@@ -90,7 +90,7 @@ export default function EmployeeTable({
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{emp.role}</span>
                       <span className="text-xs text-muted-foreground">
-                        {getTeamName(emp.teamId)}
+                        {emp.teamName}
                       </span>
                     </div>
                   </TableCell>
@@ -100,19 +100,19 @@ export default function EmployeeTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={emp.status === true}
+                        checked={emp.isActive}
                         onCheckedChange={() => onToggleStatus(emp.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          emp.status
+                          emp.isActive
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {emp.status ? "Active" : "Inactive"}
+                        {emp.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

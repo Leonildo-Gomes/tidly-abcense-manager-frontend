@@ -22,12 +22,9 @@ interface CompanyTableProps {
   onToggleStatus: (id: string) => void;
 }
 
-export default function CompanyTable({
-  companies,
-  onToggleStatus,
-}: CompanyTableProps) {
+export default function CompanyTable({ companies, onToggleStatus,}: CompanyTableProps) {
   const router = useRouter();
-
+  console.log("CompanyTable companies",companies);
   return (
     <div className="hidden md:block bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -80,19 +77,19 @@ export default function CompanyTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={company.status}
+                        checked={company.isActive}
                         onCheckedChange={() => onToggleStatus(company.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          company.status
+                          company.isActive
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {company.status ? "Active" : "Inactive"}
+                        {company.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

@@ -1,14 +1,14 @@
 "use client";
 
-import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
 import { TeamResponse } from "@/app/(panel)/_shared/team/team-response.schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger
 } from "@/components/ui/select";
 import { Filter, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";

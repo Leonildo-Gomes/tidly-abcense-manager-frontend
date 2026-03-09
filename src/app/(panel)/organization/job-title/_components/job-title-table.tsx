@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Briefcase, Pencil } from "lucide-react";
@@ -73,19 +73,19 @@ export default function JobTitleTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                        <Switch
-                        checked={job.status}
+                        checked={job.isActive}
                         onCheckedChange={() => onToggleStatus(job.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          job.status 
+                          job.isActive 
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {job.status ? "Active" : "Inactive"}
+                        {job.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

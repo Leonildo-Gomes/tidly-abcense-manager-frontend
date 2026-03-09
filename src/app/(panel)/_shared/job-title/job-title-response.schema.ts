@@ -6,7 +6,7 @@ export const jobTitleResponseSchema = z.object({
     description: z.string().nullable().optional(),
     companyId: z.uuid(),
     companyName: z.string(),
-    status: z.boolean(),
+    isActive: z.boolean(),
 });
 
 export type JobTitleResponse = z.infer<typeof jobTitleResponseSchema>;

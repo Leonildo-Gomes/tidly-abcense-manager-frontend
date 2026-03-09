@@ -1,6 +1,6 @@
 "use client";
 
-import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
@@ -69,7 +69,7 @@ export default function DepartmentGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(dept.id)}>
-                    {dept.status ? "Deactivate" : "Activate"}
+                    {dept.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -93,15 +93,15 @@ export default function DepartmentGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={dept.status ? "default" : "secondary"}
+                variant={dept.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  dept.status
+                  dept.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {dept.status ? "Active" : "Inactive"}
+                {dept.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

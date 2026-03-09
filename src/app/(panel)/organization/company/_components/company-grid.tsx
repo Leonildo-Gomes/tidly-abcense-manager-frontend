@@ -74,7 +74,7 @@ export default function CompanyGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(company.id)}>
-                    {company.status  ? "Deactivate" : "Activate"}
+                    {company.isActive  ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -89,15 +89,15 @@ export default function CompanyGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={company.status ? "default" : "secondary"}
+                variant={company.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  company.status
+                  company.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {company.status ? "Active" : "Inactive"}
+                {company.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

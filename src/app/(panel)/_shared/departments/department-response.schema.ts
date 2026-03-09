@@ -11,7 +11,7 @@ const departmentResponseSchema = z.object({
     parentDepartmentName: z.string().nullable().optional(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime().nullable().optional(),
-    status: z.boolean(),
+    isActive: z.boolean(),
 });
 
 export type DepartmentResponse = z.infer<typeof departmentResponseSchema>;

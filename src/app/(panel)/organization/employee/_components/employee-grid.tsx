@@ -70,7 +70,7 @@ export default function EmployeeGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(emp.id)}>
-                    {emp.status ? "Deactivate" : "Activate"}
+                    {emp.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -93,15 +93,15 @@ export default function EmployeeGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={emp.status ? "default" : "secondary"}
+                variant={emp.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  emp.status
+                  emp.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {emp.status ? "Active" : "Inactive"}
+                {emp.isActive ? "Active" : "Inactive"}
               </Badge>
               <span className="text-[10px] uppercase font-medium text-muted-foreground tracking-wider">
                 {getCompanyName(emp.companyId)}

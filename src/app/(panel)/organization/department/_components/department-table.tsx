@@ -1,6 +1,6 @@
 "use client";
 
-import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -82,19 +82,19 @@ export default function DepartmentTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={dept.status === true }
+                        checked={dept.isActive}
                         onCheckedChange={() => onToggleStatus(dept.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          dept.status 
+                          dept.isActive 
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {dept.status ? "Active" : "Inactive"}
+                        {dept.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

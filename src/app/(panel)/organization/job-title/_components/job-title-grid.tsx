@@ -4,12 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Briefcase, Building2, MoreVertical } from "lucide-react";
@@ -59,7 +59,7 @@ export default function JobTitleGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(job.id)}>
-                    {job.status ? "Deactivate" : "Activate"}
+                    {job.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -74,15 +74,15 @@ export default function JobTitleGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={job.status ? "default" : "secondary"}
+                variant={job.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  job.status
+                  job.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {job.status ? "Active" : "Inactive"}
+                {job.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

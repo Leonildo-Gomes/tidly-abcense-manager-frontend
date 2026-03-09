@@ -17,7 +17,7 @@ const EmployeeResponseSchema = z.object({
     role: z.enum(Role),
     startDate: z.date(),
     endDate: z.date().optional(),
-    status: z.boolean(),
+    isActive: z.boolean(),
 });
 
 export type EmployeeResponse = z.infer<typeof EmployeeResponseSchema>;
