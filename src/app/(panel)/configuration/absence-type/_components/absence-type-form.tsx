@@ -53,15 +53,16 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
       name: initialData?.name || "",
       code: initialData?.code || "",
       color: initialData?.color || "#3b82f6",
-      required_attachment: initialData?.requiredAttachment || false,
+      requiredAttachment: initialData?.requiredAttachment || false,
       description: initialData?.description || "",
-      status: initialData?.isActive || true,
+      status: initialData?.isActive ?? true,
     },
   });
 
   async function onSubmit(values: AbsenceTypeFormValues) {
     setIsSubmitting(true);
     try {
+      console.log("values", values);
       let response;
       if (isEditMode && initialData?.id) {
         response = await updateAbsenceType(initialData.id, values);
@@ -105,7 +106,6 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
           </p>
         </div>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Absence Type Details</CardTitle>
@@ -199,7 +199,7 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="required_attachment"
+                    name="requiredAttachment"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">

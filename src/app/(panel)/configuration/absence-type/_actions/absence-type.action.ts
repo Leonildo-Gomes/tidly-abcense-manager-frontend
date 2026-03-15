@@ -9,7 +9,7 @@ export async function createAbsenceType(data: AbsenceTypeFormValues) {
         throw new Error("Unauthorized");
     }
     try {
-
+        console.log("data", data);
         const schema = absenceTypeSchema.safeParse(data);
         if (!schema.success) {
             return {
@@ -17,11 +17,12 @@ export async function createAbsenceType(data: AbsenceTypeFormValues) {
                 error: schema.error.issues[0].message
             }
         }
+
         const payload = {
             name: data.name,
             code: data.code,
             color: data.color,
-            requiresAttachment: data.required_attachment,
+            requiresAttachment: data.requiredAttachment,
             description: data.description,
             isActive: data.status,
         };
@@ -51,7 +52,7 @@ export async function updateAbsenceType(id: string, data: AbsenceTypeFormValues)
             name: data.name,
             code: data.code,
             color: data.color,
-            requiredAttachment: data.required_attachment,
+            requiresAttachment: data.requiredAttachment,
             description: data.description,
             isActive: data.status,
         };
