@@ -9,6 +9,8 @@ const departmentResponseSchema = z.object({
     companyName: z.string(),
     parentDepartmentId: z.uuid().nullable().optional(),
     parentDepartmentName: z.string().nullable().optional(),
+    currentManagerId: z.string().uuid().nullable().optional(),
+    currentManagerName: z.string().nullable().optional(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime().nullable().optional(),
     isActive: z.boolean(),

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save, UserCog, UserX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -29,26 +29,40 @@ import { toast } from "sonner";
 import createDepartmentAction, { updateDepartmentAction } from "../_actions/department.action";
 
 import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
+import { DepartmentManagerHistoryResponse } from "@/app/(panel)/_shared/departments/department-manager.schema";
 import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
+import { EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 import { DepartmentFormValues, departmentSchema } from "../_schemas/department.schema";
+import { AssignManagerDialog } from "./assign-manager-dialog";
+import { DepartmentManagerHistory } from "./department-manager-history";
 
 interface DepartmentFormProps {
   initialData?: DepartmentResponse | null;
   companies: CompanyResponse[];
   departments: DepartmentResponse[];
+  employees?: EmployeeResponse[];
+  managerHistory?: DepartmentManagerHistoryResponse[];
 }
 
-export default  function DepartmentForm({ initialData, companies, departments }: DepartmentFormProps) {
+export default function DepartmentForm({
+    initialData,
+    companies,
+    departments,
+    employees = [],
+    managerHistory = [],
+}: DepartmentFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isManagerDialogOpen, setIsManagerDialogOpen] = useState(false);
 
-  console.log( "initialData", initialData);
+  const isEditing = !!initialData?.id;
+  const currentManager = managerHistory.find((h) => !h.endDate) ?? null;
 
-  const title = initialData ? "Edit Department" : "Create Department";
-  const description = initialData
+  const title = isEditing ? "Edit Department" : "Create Department";
+  const description = isEditing
     ? "Edit department details."
     : "Add a new department to your organization.";
-  const action = initialData ? "Save Changes" : "Create Department";
+  const action = isEditing ? "Save Changes" : "Create Department";
 
   const defaultValues: DepartmentFormValues = {
     name: initialData?.name || "",
@@ -63,22 +77,18 @@ export default  function DepartmentForm({ initialData, companies, departments }:
     defaultValues,
   });
 
-  // Watch companyId to filter parent departments
   const selectedCompanyId = form.watch("companyId");
 
   const filteredParentDepartments = useMemo(() => {
     if (!selectedCompanyId) return [];
-    
-    // Filter departments by company AND exclude current department (if editing) to avoid loops
-    return departments.filter(d => 
-        d.companyId === selectedCompanyId && 
+    return departments.filter(d =>
+        d.companyId === selectedCompanyId &&
         d.id !== initialData?.id
-    );  
-  }, [selectedCompanyId, initialData?.id]);
+    );
+  }, [selectedCompanyId, initialData?.id, departments]);
 
   const onSubmit = async (data: DepartmentFormValues) => {
     setIsLoading(true);
-
     try {
         let response;
         if (initialData?.id) {
@@ -92,15 +102,18 @@ export default  function DepartmentForm({ initialData, companies, departments }:
             return;
         }
 
-        toast.success(`Department ${initialData ? 'updated' : 'created'} successfully!`);
+        toast.success(`Department ${isEditing ? "updated" : "created"} successfully!`);
         router.push("/organization/department");
         router.refresh();
     } catch (error: any) {
-        console.error("Error submitting department:", error);
         toast.error(error?.message || "An unexpected error occurred.");
     } finally {
         setIsLoading(false);
     }
+  };
+
+  const handleManagerAssigned = () => {
+    router.refresh();
   };
 
   return (
@@ -115,6 +128,7 @@ export default  function DepartmentForm({ initialData, companies, departments }:
       </Button>
 
       <div className="grid gap-6">
+        {/* --- Department Info Card --- */}
         <Card>
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
@@ -123,7 +137,7 @@ export default  function DepartmentForm({ initialData, companies, departments }:
             <CardContent>
                 <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    
+
                     {/* Basic Info */}
                     <div className="grid gap-4 md:grid-cols-2">
                         <FormField
@@ -188,17 +202,17 @@ export default  function DepartmentForm({ initialData, companies, departments }:
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Parent Department (Optional)</FormLabel>
-                                <Select 
-                                    onValueChange={field.onChange} 
+                                <Select
+                                    onValueChange={field.onChange}
                                     defaultValue={field.value}
                                     disabled={!selectedCompanyId || filteredParentDepartments.length === 0}
                                 >
                                     <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder={
-                                            !selectedCompanyId ? "Select a company first" : 
+                                            !selectedCompanyId ? "Select a company first" :
                                             filteredParentDepartments.length === 0 ? "No parents available" :
-                                            "Select a parent" 
+                                            "Select a parent"
                                         } />
                                     </SelectTrigger>
                                     </FormControl>
@@ -210,15 +224,13 @@ export default  function DepartmentForm({ initialData, companies, departments }:
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <FormDescription>
-                                    Reports to this department.
-                                </FormDescription>
+                                <FormDescription>Reports to this department.</FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-                
+
                     {/* Status */}
                     <FormField
                     control={form.control}
@@ -226,12 +238,10 @@ export default  function DepartmentForm({ initialData, companies, departments }:
                     render={({ field }) => (
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                         <div className="space-y-0.5">
-                            <FormLabel className="text-base">
-                                Active Status
-                            </FormLabel>
+                            <FormLabel className="text-base">Active Status</FormLabel>
                             <FormDescription>
-                                {field.value 
-                                    ? "Department is active and visible." 
+                                {field.value
+                                    ? "Department is active and visible."
                                     : "Department is inactive and hidden."}
                             </FormDescription>
                         </div>
@@ -265,6 +275,72 @@ export default  function DepartmentForm({ initialData, companies, departments }:
                 </Form>
             </CardContent>
         </Card>
+
+        {/* --- Department Manager Section (Edit only) --- */}
+        {isEditing && (
+            <>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle>Department Manager</CardTitle>
+                            <CardDescription>
+                                The employee responsible for this department.
+                            </CardDescription>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsManagerDialogOpen(true)}
+                            disabled={employees.length === 0}
+                        >
+                            <UserCog className="mr-2 h-4 w-4" />
+                            {currentManager ? "Change Manager" : "Assign Manager"}
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {currentManager ? (
+                            <div className="flex items-center gap-3 rounded-lg border p-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                    <UserCog className="h-5 w-5 text-primary" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">{currentManager.managerName}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                        Manager since {currentManager.startDate}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-3 rounded-lg border border-dashed p-4 text-muted-foreground">
+                                <UserX className="h-5 w-5" />
+                                <p className="text-sm">No manager assigned to this department.</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Manager History</CardTitle>
+                        <CardDescription>
+                            Historical record of all managers for this department.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <DepartmentManagerHistory history={managerHistory} />
+                    </CardContent>
+                </Card>
+
+                <AssignManagerDialog
+                    departmentId={initialData.id}
+                    employees={employees}
+                    open={isManagerDialogOpen}
+                    onOpenChange={setIsManagerDialogOpen}
+                    onSuccess={handleManagerAssigned}
+                />
+            </>
+        )}
       </div>
     </div>
   );
