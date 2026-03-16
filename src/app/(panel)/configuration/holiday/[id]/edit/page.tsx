@@ -1,21 +1,28 @@
-"use client";
-
-import { useParams } from "next/navigation";
+import { redirect } from "next/navigation";
+import { getHolidayById } from "@/app/(panel)/_shared/holiday/holiday.query";
 import HolidayForm from "../../_components/holiday-form";
 
-export default function EditHolidayPage() {
-  const params = useParams();
-  const id = params.id as string;
+export default async function EditHolidayPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-  // In a real app, fetch data based on ID
-  const mockData = {
-    id,
-    name: "New Year's Day",
-    date: new Date(new Date().getFullYear(), 0, 1),
-    isRecurring: true,
-    type: "public" as const, // Cast to literal type
-    status: true,
+  const response = await getHolidayById(id);
+
+  if (!response.success || !response.data) {
+    redirect("/configuration/holiday");
+  }
+
+  const holidayToEdit = {
+    id: response.data.id,
+    name: response.data.name,
+    date: new Date(response.data.date),
+    type: response.data.type,
+    isRecurring: response.data.isRecurring,
+    status: response.data.isActive,
   };
 
-  return <HolidayForm initialData={mockData} isEditMode />;
+  return <HolidayForm initialData={holidayToEdit} isEditMode />;
 }

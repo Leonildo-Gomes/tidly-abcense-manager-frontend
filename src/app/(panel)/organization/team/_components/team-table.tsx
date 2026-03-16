@@ -77,19 +77,19 @@ export default function TeamTable({ teams, onToggleStatus }: TeamTableProps) {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={team.status }
+                        checked={team.isActive }
                         onCheckedChange={() => onToggleStatus(team.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          team.status 
+                          team.isActive 
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {team.status}
+                        {team.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

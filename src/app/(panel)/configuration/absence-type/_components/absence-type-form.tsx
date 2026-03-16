@@ -53,7 +53,7 @@ export default function AbsenceTypeForm({ initialData, isEditMode = false }: Abs
       name: initialData?.name || "",
       code: initialData?.code || "",
       color: initialData?.color || "#3b82f6",
-      requiredAttachment: initialData?.requiredAttachment || false,
+      requiredAttachment: initialData?.requiredAttachment ?? false,
       description: initialData?.description || "",
       status: initialData?.isActive ?? true,
     },

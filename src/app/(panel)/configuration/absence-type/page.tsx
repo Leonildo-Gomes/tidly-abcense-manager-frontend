@@ -5,6 +5,8 @@ export default async function AbsenceTypePage() {
   const response = await getAllAbsenceTypes();
   const absenceTypes = response.data || [];
 
+  console.log("absenceTypes", absenceTypes);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">

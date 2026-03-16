@@ -13,35 +13,22 @@ import {
 import { Edit2, Trash2 } from "lucide-react";
 import Link from "next/link";
 
-// Mock data
-const policies = [
-  {
-    id: "p1",
-    company_name: "Acme Corp",
-    absence_type: "Vacation",
-    department: null, // General Rule
-    max_days: 22.5,
-    min_notice: 14,
-  },
-  {
-    id: "p2",
-    company_name: "Acme Corp",
-    absence_type: "Sick Leave",
-    department: null,
-    max_days: 10,
-    min_notice: 0,
-  },
-  {
-    id: "p3",
-    company_name: "Acme Corp",
-    absence_type: "Vacation",
-    department: "Engineering", // Specific Rule override
-    max_days: 25,
-    min_notice: 30,
-  },
-];
+export interface MappedPolicy {
+  id: string;
+  companyName: string;
+  absenceTypeName: string;
+  departmentName: string | null;
+  maxDaysPerYear: number;
+  minNoticeDays: number;
+}
 
-export function PolicyList() {
+interface PolicyListProps {
+    initialPolicies: MappedPolicy[];
+}
+
+export function PolicyList({ initialPolicies }: PolicyListProps) {
+
+  console.log("initialPolicies", initialPolicies);
   return (
     <div className="rounded-md border">
       <Table>
@@ -56,19 +43,19 @@ export function PolicyList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {policies.map((policy) => (
+          {initialPolicies.map((policy) => (
             <TableRow key={policy.id}>
-              <TableCell className="font-medium">{policy.company_name}</TableCell>
-              <TableCell>{policy.absence_type}</TableCell>
+              <TableCell className="font-medium">{policy.companyName}</TableCell>
+              <TableCell>{policy.absenceTypeName}</TableCell>
               <TableCell>
-                {policy.department ? (
-                  <Badge variant="outline">{policy.department}</Badge>
+                {policy.departmentName ? (
+                  <Badge variant="outline">{policy.departmentName}</Badge>
                 ) : (
                   <Badge variant="secondary">General Rule</Badge>
                 )}
               </TableCell>
-              <TableCell className="text-right">{policy.max_days}</TableCell>
-              <TableCell className="text-right">{policy.min_notice}</TableCell>
+              <TableCell className="text-right">{policy.maxDaysPerYear}</TableCell>
+              <TableCell className="text-right">{policy.minNoticeDays}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button variant="ghost" size="icon" asChild>

@@ -51,8 +51,10 @@ import { z } from "zod";
 
 const formSchema = z.object({
   type: z.string().min(1, "Select an absence type"),
-  startDate: z.date(),
-  days: z.coerce.number().min(1, "At least 1 day is required"),
+  startDate: z.date({
+    message: "Start date is required",
+  }),
+  days: z.number().min(1, "At least 1 day is required"),
   reason: z.string().optional(),
 });
 
@@ -252,7 +254,13 @@ export default function AbsenceRequestSplitDashboard() {
                       <FormItem>
                         <FormLabel>Duration</FormLabel>
                         <FormControl>
-                          <Input type="number" min={1} className="h-11" {...field} />
+                          <Input 
+                            type="number" 
+                            min={1} 
+                            className="h-11" 
+                            {...field} 
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

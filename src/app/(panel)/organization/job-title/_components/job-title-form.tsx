@@ -51,7 +51,7 @@ export default function JobTitleForm({ initialData, companies }: JobTitleFormPro
     name: initialData?.name || "",
     description: initialData?.description || "",
     companyId: initialData?.companyId || "",
-    status: initialData ? initialData.status : true,
+    status: initialData ? initialData.isActive : true,
   };
 
   const form = useForm<JobTitleFormValues>({

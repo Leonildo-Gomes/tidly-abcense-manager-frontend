@@ -5,7 +5,7 @@ async function test() {
   console.log(JSON.stringify(result, null, 2));
   if (result.data) {
     result.data.forEach((c) => {
-        console.log("Company:", c.name, "Status:", c.status, "Type of status:", typeof c.status);
+        console.log("Company:", c.name, "Status:", c.isActive, "Type of status:", typeof c.isActive);
     });
   }
 }

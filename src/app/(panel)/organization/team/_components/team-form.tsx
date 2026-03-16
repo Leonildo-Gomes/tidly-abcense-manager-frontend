@@ -51,7 +51,7 @@ export default function TeamForm({ initialData, departments }: TeamFormProps) {
     name: initialData?.name || "",
     code: initialData?.code || "",
     departmentId: initialData?.departmentId || "",
-    status: initialData ? initialData.status : true,
+    status: initialData ? initialData.isActive : true,
   };
 
   const form = useForm<TeamFormValues>({

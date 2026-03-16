@@ -4,7 +4,7 @@ export const absenceTypeSchema = z.object({
     name: z.string().min(2, { message: "Name must be at least 2 characters." }),
     code: z.string().min(2, { message: "Code must be at least 2 characters." }),
     color: z.string().min(1, { message: "Color is required." }),
-    requiredAttachment: z.boolean().default(false),
+    requiredAttachment: z.boolean(),
     description: z.string().optional(),
     status: z.boolean(),
 });

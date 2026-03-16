@@ -1,6 +1,10 @@
+import { getAllHolidays } from "../../_shared/holiday/holiday.query";
 import HolidayList from "./_components/holiday-list";
 
-export default function HolidayPage() {
+export default async function HolidayPage() {
+  const response = await getAllHolidays();
+  const holidays = response.success ? response.data || [] : [];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -12,7 +16,7 @@ export default function HolidayPage() {
         </p>
       </div>
 
-      <HolidayList />
+      <HolidayList initialHolidays={holidays} />
     </div>
   );
 }

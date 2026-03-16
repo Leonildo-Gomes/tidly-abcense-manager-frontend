@@ -1,5 +1,6 @@
 "use client";
 
+import { HolidayType } from "@/app/(panel)/_shared/holiday/holiday-type.enum";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,20 +30,12 @@ import { ArrowLeft, CalendarIcon, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  date: z.date().nonoptional({ message: "A date is required." }),
-  type: z.enum(["public", "company"]),
-  isRecurring: z.boolean(),
-  status: z.boolean(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { toast } from "sonner";
+import { createHoliday, updateHoliday } from "../_actions/holiday.action";
+import { HolidayFormValues, holidaySchema } from "../_schemas/holiday.schema";
 
 interface HolidayFormProps {
-  initialData?: FormValues & { id: string };
+  initialData?: HolidayFormValues & { id: string };
   isEditMode?: boolean;
 }
 
@@ -50,25 +43,44 @@ export default function HolidayForm({ initialData, isEditMode = false }: Holiday
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      name: "",
-      date: new Date(),
-      type: "public",
-      isRecurring: true,
-      status: true,
+  const form = useForm<HolidayFormValues>({
+    resolver: zodResolver(holidaySchema),
+    defaultValues: {
+      name: initialData?.name || "",
+      date: initialData?.date || new Date(),
+      type: initialData?.type ?? HolidayType.PUBLIC,
+      isRecurring: initialData?.isRecurring ?? true,
+      status: initialData?.status ?? true,
     },
   });
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: HolidayFormValues) {
     setIsSubmitting(true);
-    // Simulate API call
-    console.log(values);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      let response;
+      if (isEditMode && initialData?.id) {
+        response = await updateHoliday(initialData.id, values);
+        if (!response.success) {
+            toast.error(response.error);
+            return;
+        }
+        toast.success("Holiday updated successfully.");
+      } else {
+        response = await createHoliday(values);
+        if (!response.success) {
+            toast.error(response.error);
+            return;
+        }
+        toast.success("Holiday created successfully.");
+      }
       router.push("/configuration/holiday");
-    }, 1000);
+      router.refresh();
+    } catch (err: any) {
+        console.error("Holiday Submit Error:", err);
+        toast.error(err.message || "Failed to save holiday.");
+    } finally {
+        setIsSubmitting(false);
+    }
   }
 
   return (
@@ -174,8 +186,8 @@ export default function HolidayForm({ initialData, isEditMode = false }: Holiday
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            <SelectItem value="public">Public Holiday</SelectItem>
-                            <SelectItem value="company">Company Holiday</SelectItem>
+                            <SelectItem value={HolidayType.PUBLIC}>Public Holiday</SelectItem>
+                            <SelectItem value={HolidayType.COMPANY}>Company Holiday</SelectItem>
                         </SelectContent>
                         </Select>
                         <FormMessage />

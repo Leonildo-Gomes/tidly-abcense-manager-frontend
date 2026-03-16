@@ -62,7 +62,7 @@ export default function TeamGrid({ teams, onToggleStatus }: TeamGridProps) {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(team.id)}>
-                    {team.status ? "Deactivate" : "Activate"}
+                    {team.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -82,15 +82,15 @@ export default function TeamGrid({ teams, onToggleStatus }: TeamGridProps) {
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={team.status ? "default" : "secondary"}
+                variant={team.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  team.status
+                  team.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {team.status ? "Active" : "Inactive"}
+                {team.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

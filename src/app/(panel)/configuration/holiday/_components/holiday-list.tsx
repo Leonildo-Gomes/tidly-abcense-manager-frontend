@@ -7,68 +7,62 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import HolidayGrid from "./holiday-grid";
 import HolidayTable from "./holiday-table";
-import { Holiday } from "./types";
+import { HolidayResponse } from "@/app/(panel)/_shared/holiday/holiday-response.schema";
+import { toast } from "sonner";
+import { updateHoliday } from "../_actions/holiday.action";
 
-// Mock Data
-const initialHolidays: Holiday[] = [
-  {
-    id: "1",
-    name: "New Year's Day",
-    date: new Date(new Date().getFullYear(), 0, 1),
-    isRecurring: true,
-    type: "public",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Easter Monday",
-    date: new Date(new Date().getFullYear(), 3, 1), // Varies
-    isRecurring: false,
-    type: "public",
-    status: "active",
-  },
-  {
-    id: "3",
-    name: "Labour Day",
-    date: new Date(new Date().getFullYear(), 4, 1),
-    isRecurring: true,
-    type: "public",
-    status: "active",
-  },
-  {
-    id: "4",
-    name: "Company Anniversary",
-    date: new Date(new Date().getFullYear(), 8, 15),
-    isRecurring: true,
-    type: "company",
-    status: "active",
-  },
-  {
-    id: "5",
-    name: "Christmas Day",
-    date: new Date(new Date().getFullYear(), 11, 25),
-    isRecurring: true,
-    type: "public",
-    status: "active",
-  },
-];
+interface HolidayListProps {
+  initialHolidays: HolidayResponse[];
+}
 
-export default function HolidayList() {
-  const [holidays, setHolidays] = useState<Holiday[]>(initialHolidays);
+export default function HolidayList({ initialHolidays }: HolidayListProps) {
+  const [holidays, setHolidays] = useState<HolidayResponse[]>(initialHolidays);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
 
-  const handleStatusToggle = (id: string) => {
+  const handleStatusToggle = async (id: string) => {
+    const holidayToUpdate = holidays.find((h) => h.id === id);
+    if (!holidayToUpdate) return;
+
+    const newStatus = !holidayToUpdate.isActive;
+    
+    // Optimistic UI update
     setHolidays((prev) =>
       prev.map((holiday) =>
-        holiday.id === id
-          ? {
-              ...holiday,
-              status: holiday.status === "active" ? "inactive" : "active",
-            }
-          : holiday
+        holiday.id === id ? { ...holiday, isActive: newStatus } : holiday
       )
     );
+
+    try {
+      const response = await updateHoliday(id, {
+        name: holidayToUpdate.name,
+        date: new Date(holidayToUpdate.date),
+        type: holidayToUpdate.type,
+        isRecurring: holidayToUpdate.isRecurring,
+        status: newStatus,
+      });
+
+      if (!response.success) {
+        // Revert on error
+        setHolidays((prev) =>
+          prev.map((holiday) =>
+            holiday.id === id ? { ...holiday, isActive: !newStatus } : holiday
+          )
+        );
+        toast.error(response.error || "Failed to update holiday status");
+      } else {
+        toast.success(`Holiday ${newStatus ? 'activated' : 'deactivated'}`);
+        router.refresh();
+      }
+    } catch (error) {
+      // Revert on error
+      setHolidays((prev) =>
+        prev.map((holiday) =>
+          holiday.id === id ? { ...holiday, isActive: !newStatus } : holiday
+        )
+      );
+      toast.error("Failed to update holiday status");
+    }
   };
 
   const filteredHolidays = holidays.filter((holiday) =>

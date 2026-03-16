@@ -15,10 +15,11 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Pencil, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Holiday } from "./types";
+import { HolidayResponse } from "@/app/(panel)/_shared/holiday/holiday-response.schema";
+import { HolidayType } from "@/app/(panel)/_shared/holiday/holiday-type.enum";
 
 interface HolidayTableProps {
-  holidays: Holiday[];
+  holidays: HolidayResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -60,19 +61,19 @@ export default function HolidayTable({
                     </div>
                   </TableCell>
                   <TableCell className="font-medium text-gray-600">
-                    {format(holiday.date, "MMMM d, yyyy")}
+                    {format(new Date(holiday.date), "MMMM d, yyyy")}
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={holiday.type === "public" ? "secondary" : "outline"}
+                      variant={holiday.type === HolidayType.PUBLIC ? "secondary" : "outline"}
                       className={cn(
                         "font-normal capitalize",
-                        holiday.type === "public" 
+                        holiday.type === HolidayType.PUBLIC 
                             ? "bg-purple-50 text-purple-700 hover:bg-purple-50"
                             : "bg-gray-50 text-gray-600 border-gray-200"
                       )}
                     >
-                      {holiday.type}
+                      {holiday.type.toLowerCase()}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -86,19 +87,19 @@ export default function HolidayTable({
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Switch
-                        checked={holiday.status === "active"}
+                        checked={holiday.isActive}
                         onCheckedChange={() => onToggleStatus(holiday.id)}
                         className="data-[state=checked]:bg-green-500"
                       />
                       <span
                         className={cn(
                           "text-xs font-medium",
-                          holiday.status === "active"
+                          holiday.isActive
                             ? "text-green-600"
                             : "text-gray-500"
                         )}
                       >
-                        {holiday.status === "active" ? "Active" : "Inactive"}
+                        {holiday.isActive ? "Active" : "Inactive"}
                       </span>
                     </div>
                   </TableCell>

@@ -15,10 +15,11 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, MoreVertical, Repeat } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Holiday } from "./types";
+import { HolidayResponse } from "@/app/(panel)/_shared/holiday/holiday-response.schema";
+import { HolidayType } from "@/app/(panel)/_shared/holiday/holiday-type.enum";
 
 interface HolidayGridProps {
-  holidays: Holiday[];
+  holidays: HolidayResponse[];
   onToggleStatus: (id: string) => void;
 }
 
@@ -46,7 +47,7 @@ export default function HolidayGrid({
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium truncate">{holiday.name}</h3>
                 <div className="flex items-center gap-2 mt-0.5 text-sm text-muted-foreground">
-                    <span>{format(holiday.date, "MMMM d, yyyy")}</span>
+                    <span>{format(new Date(holiday.date), "MMMM d, yyyy")}</span>
                 </div>
               </div>
               <DropdownMenu>
@@ -68,7 +69,7 @@ export default function HolidayGrid({
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onToggleStatus(holiday.id)}>
-                    {holiday.status === "active" ? "Deactivate" : "Activate"}
+                    {holiday.isActive ? "Deactivate" : "Activate"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -77,15 +78,15 @@ export default function HolidayGrid({
               <div className="flex items-center justify-between text-muted-foreground">
                 <div className="flex items-center gap-2">
                     <Badge
-                      variant={holiday.type === "public" ? "secondary" : "outline"}
+                      variant={holiday.type === HolidayType.PUBLIC ? "secondary" : "outline"}
                       className={cn(
                         "font-normal capitalize text-[10px] h-5",
-                        holiday.type === "public" 
+                        holiday.type === HolidayType.PUBLIC 
                             ? "bg-purple-50 text-purple-700 hover:bg-purple-50"
                             : "bg-gray-50 text-gray-600 border-gray-200"
                       )}
                     >
-                      {holiday.type}
+                      {holiday.type.toLowerCase()}
                     </Badge>
                 </div>
                 {holiday.isRecurring && (
@@ -98,15 +99,15 @@ export default function HolidayGrid({
             </CardContent>
             <CardFooter className="p-3 bg-gray-50/50 flex items-center justify-between border-t">
               <Badge
-                variant={holiday.status === "active" ? "default" : "secondary"}
+                variant={holiday.isActive ? "default" : "secondary"}
                 className={cn(
                   "font-normal",
-                  holiday.status === "active"
+                  holiday.isActive
                     ? "bg-green-100 text-green-700 hover:bg-green-100"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {holiday.status === "active" ? "Active" : "Inactive"}
+                {holiday.isActive ? "Active" : "Inactive"}
               </Badge>
             </CardFooter>
           </Card>

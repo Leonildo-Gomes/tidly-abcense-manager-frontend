@@ -26,67 +26,63 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-// Mock data - In a real app, this would come from API/Context
-const mocks = {
-    companies: [
-        { id: "c1", name: "Acme Corp" },
-        { id: "c2", name: "Globex" },
-    ],
-    absenceTypes: [
-        { id: "at1", name: "Vacation", code: "VAC" },
-        { id: "at2", name: "Sick Leave", code: "SICK" },
-    ],
-    departments: [
-        { id: "d1", name: "Engineering" },
-        { id: "d2", name: "HR" },
-        { id: "d3", name: "Sales" },
-    ]
-}
+import { toast } from "sonner";
+import { CompanyResponse } from "@/app/(panel)/_shared/company/company-response.schema";
+import { AbsenceTypeResponse } from "@/app/(panel)/_shared/absence-type/absence-type-response.schema";
+import { DepartmentResponse } from "@/app/(panel)/_shared/departments/department-response.schema";
+import { createAbsencePolicy, updateAbsencePolicy } from "../_actions/absence-policy.action";
+import { policyFormSchema, PolicyFormValues } from "../_schemas/absence-policy.schema";
 
-const formSchema = z.object({
-  company_id: z.string().min(1, { message: "Company is required." }),
-  absence_type_id: z.string().min(1, { message: "Absence Type is required." }),
-  department_id: z.string().nullable().optional(), // Null means General Rule
-  max_days_per_year: z.number().min(0),
-  min_notice_days: z.number().int().min(0),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-interface PolicyFormProps {
-  initialData?: Partial<FormValues> & { id?: string };
+export interface PolicyFormProps {
+  initialData?: Partial<PolicyFormValues> & { id?: string };
   isEditMode?: boolean;
+  companies: CompanyResponse[];
+  absenceTypes: AbsenceTypeResponse[];
+  departments: DepartmentResponse[];
 }
 
-export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps) {
+export function PolicyForm({ initialData, isEditMode = false, companies, absenceTypes, departments }: PolicyFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<PolicyFormValues>({
+    resolver: zodResolver(policyFormSchema),
     defaultValues: {
-      company_id: initialData?.company_id || "",
-      absence_type_id: initialData?.absence_type_id || "",
-      department_id: initialData?.department_id || null, 
-      max_days_per_year: initialData?.max_days_per_year || 0,
-      min_notice_days: initialData?.min_notice_days || 0,
+      companyId: initialData?.companyId || "",
+      absenceTypeId: initialData?.absenceTypeId || "",
+      departmentId: initialData?.departmentId || null, 
+      maxDaysPerYear: initialData?.maxDaysPerYear || 0,
+      minNoticeDays: initialData?.minNoticeDays || 0,
     },
   });
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: PolicyFormValues) {
     setIsSubmitting(true);
-    // Convert "general" or empty string back to null if needed, though Zod handles nullable
+    
+    // Convert "general" or empty string back to null if needed
     const payload = {
         ...values,
-        department_id: values.department_id === "general" ? null : values.department_id
-    }
-    
-    console.log("Submitting Policy:", payload);
+        departmentId: values.departmentId === "general" ? null : values.departmentId
+    };
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const result = isEditMode && initialData?.id
+         ? await updateAbsencePolicy(initialData.id, payload)
+         : await createAbsencePolicy(payload as any);
+         
+      if (!result.success) {
+         toast.error(result.errorMessage || "An error occurred");
+         return;
+      }
+      
+      toast.success(`Policy successfully ${isEditMode ? "updated" : "created"}`);
       router.push("/configuration/absence-policies");
-    }, 1000);
+      router.refresh(); // Tell NextJS to refresh server cache
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -121,7 +117,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="company_id"
+                  name="companyId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Company</FormLabel>
@@ -132,7 +128,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            {mocks.companies.map(c => (
+                            {companies.map(c => (
                                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                             ))}
                         </SelectContent>
@@ -144,7 +140,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
 
                 <FormField
                   control={form.control}
-                  name="absence_type_id"
+                  name="absenceTypeId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Absence Type</FormLabel>
@@ -155,7 +151,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            {mocks.absenceTypes.map(t => (
+                            {absenceTypes.map(t => (
                                 <SelectItem key={t.id} value={t.id}>{t.name} ({t.code})</SelectItem>
                             ))}
                         </SelectContent>
@@ -168,7 +164,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
 
               <FormField
                 control={form.control}
-                name="department_id"
+                name="departmentId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Department (Scope)</FormLabel>
@@ -183,7 +179,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
                       </FormControl>
                       <SelectContent>
                           <SelectItem value="general" className="font-semibold">General Rule (All Departments)</SelectItem>
-                          {mocks.departments.map(d => (
+                          {departments.map(d => (
                               <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                           ))}
                       </SelectContent>
@@ -199,7 +195,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                   control={form.control}
-                  name="max_days_per_year"
+                  name="maxDaysPerYear"
                   render={({ field }) => (
                       <FormItem>
                       <FormLabel>Max Days / Year</FormLabel>
@@ -219,7 +215,7 @@ export function PolicyForm({ initialData, isEditMode = false }: PolicyFormProps)
 
                   <FormField
                   control={form.control}
-                  name="min_notice_days"
+                  name="minNoticeDays"
                   render={({ field }) => (
                       <FormItem>
                       <FormLabel>Min Notice Days</FormLabel>

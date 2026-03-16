@@ -37,8 +37,10 @@ import { z } from "zod";
 
 const formSchema = z.object({
   type: z.string().min(1, "Select an absence type"),
-  startDate: z.date().nonoptional("Start date is required"),
-  days: z.coerce.number().min(1, "At least 1 day is required"),
+  startDate: z.date({
+    message: "Start date is required",
+  }),
+  days: z.number().min(1, "At least 1 day is required"),
   reason: z.string().optional(),
 });
 
@@ -190,7 +192,12 @@ export default function AbsenceRequestSmartForm() {
                   <FormItem>
                     <FormLabel>Duration (Days)</FormLabel>
                     <FormControl>
-                      <Input type="number" min={1} {...field} />
+                      <Input 
+                        type="number" 
+                        min={1} 
+                        {...field} 
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

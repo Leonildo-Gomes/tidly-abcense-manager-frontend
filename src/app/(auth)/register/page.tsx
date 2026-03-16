@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import Link from "next/link";
 import RegisterHookForm from "./_component/register-hook-form";
+import { Suspense } from "react";
 
 export default function RegisterUserPage() {
   return (
@@ -36,7 +37,9 @@ export default function RegisterUserPage() {
             <p className="text-gray-500 mt-2">Create your workspace and account</p>
           </div>
 
-          <RegisterHookForm />
+          <Suspense fallback={<div className="h-[400px] flex items-center justify-center">Loading...</div>}>
+            <RegisterHookForm />
+          </Suspense>
 
           <div className="mt-8 text-center text-sm text-gray-500">
             Already have an account?{" "}
