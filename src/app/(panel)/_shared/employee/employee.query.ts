@@ -36,3 +36,20 @@ export async function getEmployeeById(id: string) {
         };
     }
 }
+
+export async function getEmployeeByUserId() {
+    try {
+        const { data } = await apiServer.get<EmployeeResponse>(`/v1/employees/me`);
+        return {
+            success: true,
+            data,
+            statusCode: 200
+        };
+    } catch (error: any) {
+        return {
+            success: false,
+            errorMessage: error.response?.data?.message || error.message || "Failed to fetch employee",
+            statusCode: error.response?.status || 500
+        };
+    }
+}
