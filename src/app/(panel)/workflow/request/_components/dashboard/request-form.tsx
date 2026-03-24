@@ -36,9 +36,33 @@ interface RequestFormProps {
   onSubmit: (data: any) => Promise<void>;
   endDate?: Date;
   isLoading: boolean;
+  absenceSettings: { absenceTypeId: string; absenceTypeName: string }[];
 }
 
-export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormProps) {
+export function RequestForm({ form, onSubmit, endDate, isLoading, absenceSettings }: RequestFormProps) {
+  const getAbsenceTypeIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('vacation') || lowerName.includes('férias')) {
+      return (
+        <div className="p-1.5 rounded bg-orange-50 text-orange-600">
+          <Plane className="w-4 h-4" /> 
+        </div>
+      );
+    }
+    if (lowerName.includes('sick') || lowerName.includes('doença') || lowerName.includes('medic') || lowerName.includes('médica')) {
+      return (
+        <div className="p-1.5 rounded bg-red-50 text-red-600">
+          <Clock className="w-4 h-4" /> 
+        </div>
+      );
+    }
+    return (
+      <div className="p-1.5 rounded bg-primary/10 text-primary">
+        <CalendarIcon className="w-4 h-4" /> 
+      </div>
+    );
+  };
+
   return (
     <Card className="flex-1 shadow-sm rounded-lg border-primary/10">
       <CardHeader className="p-8 pb-4">
@@ -62,24 +86,14 @@ export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="rounded-md border-primary/10 shadow-lg">
-                      <SelectItem value="vacation" className="h-12 py-3">
-                        <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded bg-orange-50 text-orange-600">
-                                <Plane className="w-4 h-4" /> 
-                            </div>
-                            <span className="font-medium">Vacation</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="sick" className="h-12 py-3">
-                         <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded bg-red-50 text-red-600">
-                                <Clock className="w-4 h-4" /> 
-                            </div>
-                            <span className="font-medium">Sick Leave</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="personal" className="h-12">Personal Day</SelectItem>
-                      <SelectItem value="remote" className="h-12">Remote Work</SelectItem>
+                      {absenceSettings.map((setting) => (
+                        <SelectItem key={setting.absenceTypeId} value={setting.absenceTypeId} className="h-12 py-3">
+                          <div className="flex items-center gap-3">
+                              {getAbsenceTypeIcon(setting.absenceTypeName)}
+                              <span className="font-medium">{setting.absenceTypeName}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

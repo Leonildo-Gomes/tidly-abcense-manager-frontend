@@ -2,8 +2,21 @@
 
 import { getEmployeeByUserId } from "@/app/(panel)/_shared/employee/employee.query";
 import AbsenceRequestSplitDashboard from "./_components/absence-request-split-dashboard";
+import { apiServer } from "@/lib/axios-server";
 
 export default async function AbsenceRequestPage() {
+  let absenceSettings = [];
+  try {
+    const response = await apiServer.get("/v1/company-absence-settings");
+    // Extract only ID and Name as requested
+    absenceSettings = response.data?.map((s: any) => ({
+      absenceTypeId: s.absenceTypeId,
+      absenceTypeName: s.absenceTypeName
+    })) || [];
+  } catch (error) {
+    console.error("Failed to fetch absence settings:", error);
+  }
+
   const result = await getEmployeeByUserId();
   const employee = result.success ? result.data : null;
 
@@ -17,7 +30,7 @@ export default async function AbsenceRequestPage() {
       </div>
 
       <div className="min-h-[700px] animate-in fade-in slide-in-from-bottom-2 duration-700 ease-out fill-mode-both">
-        <AbsenceRequestSplitDashboard employee={employee} />
+        <AbsenceRequestSplitDashboard employee={employee} absenceSettings={absenceSettings} />
       </div>
     </div>
   );

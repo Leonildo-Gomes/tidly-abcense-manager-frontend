@@ -18,10 +18,16 @@ import { AbsenceCalendar } from "./dashboard/absence-calendar";
 import { ContextCard } from "./dashboard/context-card";
 import { RequestForm } from "./dashboard/request-form";
 
+import { createAbsenceRequest } from "../_actions/absence-request.action";
 import { type EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 
 
-export default function AbsenceRequestSplitDashboard({ employee }: { employee?: EmployeeResponse | null }) {
+interface DashboardProps {
+  employee?: EmployeeResponse | null;
+  absenceSettings: { absenceTypeId: string; absenceTypeName: string }[];
+}
+
+export default function AbsenceRequestSplitDashboard({ employee, absenceSettings }: DashboardProps) {
     const [endDate, setEndDate] = useState<Date | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -48,6 +54,7 @@ export default function AbsenceRequestSplitDashboard({ employee }: { employee?: 
     if (startDate && totalDays > 0) {
       const calculatedEnd = addDays(startDate, totalDays - 1);
       setEndDate(calculatedEnd);
+      form.setValue("endDate", calculatedEnd);
       
       // Auto-switch calendar view to the selected start date's month
       if (!isSameMonth(startDate, currentMonth)) {
@@ -56,15 +63,24 @@ export default function AbsenceRequestSplitDashboard({ employee }: { employee?: 
     } else {
       setEndDate(undefined);
     }
-  }, [startDate, totalDays]);
+  }, [startDate, totalDays, form]);
 
   const onSubmit = async (data: AbsenceRequestFormData) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    toast.success("Absence request submitted successfully!");
-    setIsLoading(false);
-    form.reset();
-    setEndDate(undefined);
+    try {
+      const response = await createAbsenceRequest(data);
+      if (response.success) {
+        toast.success("Absence request submitted successfully!");
+        form.reset();
+        setEndDate(undefined);
+      } else {
+        toast.error(response.error || "Failed to submit absence request.");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -86,6 +102,7 @@ export default function AbsenceRequestSplitDashboard({ employee }: { employee?: 
             onSubmit={onSubmit} 
             endDate={endDate} 
             isLoading={isLoading} 
+            absenceSettings={absenceSettings}
         />
       </motion.div>
 
