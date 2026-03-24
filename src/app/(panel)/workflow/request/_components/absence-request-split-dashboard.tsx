@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { absenceRequestSchema, type AbsenceRequestFormData } from "../_schemas/absence-request.schema";
 
 // Modular Components
 import { AbsenceCalendar } from "./dashboard/absence-calendar";
@@ -20,16 +20,6 @@ import { RequestForm } from "./dashboard/request-form";
 
 import { type EmployeeResponse } from "@/app/(panel)/_shared/employee/employee-response.schema";
 
-const formSchema = z.object({
-  type: z.string().min(1, "Select an absence type"),
-  startDate: z.date({
-    message: "Start date is required",
-  }),
-  days: z.number().min(1, "At least 1 day is required"),
-  reason: z.string().optional(),
-});
-
-type FormData = z.infer<typeof formSchema>;
 
 export default function AbsenceRequestSplitDashboard({ employee }: { employee?: EmployeeResponse | null }) {
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -38,22 +28,25 @@ export default function AbsenceRequestSplitDashboard({ employee }: { employee?: 
   // Custom Calendar State
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<AbsenceRequestFormData>({
+    resolver: zodResolver(absenceRequestSchema),
     defaultValues: {
-      type: "",
-      days: 1,
-      reason: "",
+      absenceTypeId: "",
+      referenceYear: new Date().getFullYear(),
+      startDate: new Date(),
+      endDate: new Date(),
+      totalDays: 1,
+      comment: "",
     },
   });
 
   const startDate = form.watch("startDate");
-  const days = form.watch("days");
+  const totalDays = form.watch("totalDays");
 
   // Auto-calculate End Date
   useEffect(() => {
-    if (startDate && days > 0) {
-      const calculatedEnd = addDays(startDate, days - 1);
+    if (startDate && totalDays > 0) {
+      const calculatedEnd = addDays(startDate, totalDays - 1);
       setEndDate(calculatedEnd);
       
       // Auto-switch calendar view to the selected start date's month
@@ -63,9 +56,9 @@ export default function AbsenceRequestSplitDashboard({ employee }: { employee?: 
     } else {
       setEndDate(undefined);
     }
-  }, [startDate, days]);
+  }, [startDate, totalDays]);
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: AbsenceRequestFormData) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     toast.success("Absence request submitted successfully!");

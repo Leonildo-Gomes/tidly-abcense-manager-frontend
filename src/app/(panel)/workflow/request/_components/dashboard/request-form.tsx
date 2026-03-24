@@ -4,31 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { addDays, format } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, CheckCircle2, Clock, Loader2, Plane, AlertCircle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Calendar as CalendarIcon, CheckCircle2, Clock, Loader2, Plane } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 interface RequestFormProps {
@@ -48,9 +48,10 @@ export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormP
       <CardContent className="p-8 pt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="type"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="absenceTypeId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Absence Type</FormLabel>
@@ -85,6 +86,37 @@ export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormP
                 </FormItem>
               )}
             />
+
+              <FormField
+                control={form.control}
+                name="referenceYear"
+                render={({ field }) => {
+                  const currentYear = new Date().getFullYear();
+                  const years = [currentYear - 1, currentYear, currentYear + 1];
+                  
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Reference Year</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(Number(value))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 rounded-md border-primary/10 bg-muted/20 focus:ring-primary/20">
+                            <SelectValue placeholder="Select year" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="rounded-md border-primary/10 shadow-lg">
+                          {years.map((year) => (
+                            <SelectItem key={year} value={year.toString()} className="h-12 py-3">
+                              <span className="font-medium">{year}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-6">
               <FormField
@@ -133,7 +165,7 @@ export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormP
 
               <FormField
                 control={form.control}
-                name="days"
+                name="totalDays"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Duration</FormLabel>
@@ -157,7 +189,7 @@ export function RequestForm({ form, onSubmit, endDate, isLoading }: RequestFormP
 
             <FormField
               control={form.control}
-              name="reason"
+              name="comment"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Note (Optional)</FormLabel>
