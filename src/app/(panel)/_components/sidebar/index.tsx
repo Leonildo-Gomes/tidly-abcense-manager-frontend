@@ -1,25 +1,5 @@
 "use client";
 
-import {
-  Building2,
-  Calendar,
-  ChartArea,
-  CheckSquare,
-  ChevronRight,
-  ChevronsUpDown,
-  ClipboardList,
-  FileText,
-  Home,
-  IdCardLanyard,
-  Landmark,
-  LogOut,
-  Settings,
-  User,
-  Users
-} from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import * as React from "react";
-
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Collapsible,
@@ -48,7 +28,27 @@ import {
   SidebarRail
 } from "@/components/ui/sidebar";
 import { useClerk, useUser } from "@clerk/nextjs";
+import {
+  Building2,
+  Calendar,
+  ChartArea,
+  CheckSquare,
+  ChevronRight,
+  ChevronsUpDown,
+  ClipboardList,
+  FileText,
+  Home,
+  IdCardLanyard,
+  Landmark,
+  LogOut,
+  Settings,
+  User,
+  Users
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import * as React from "react";
 import logo from "../../../../../public/tidly_icone.png";
 // Menu configuration
 const data = {
@@ -117,6 +117,11 @@ const data = {
           title: "Approvals",
           url: "/workflow/approval",
           icon: CheckSquare,
+        },
+         {
+          title: "Holidays planning",
+          url: "/workflow/holidays-planning",
+          icon: Calendar,
         },
       ],
     },
@@ -189,10 +194,10 @@ export default function Sidebar({...props}: React.ComponentProps<typeof SidebarC
                    return (
                        <SidebarMenuItem key={item.title}>
                            <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
-                               <a href={item.url}>
+                               <Link href={item.url}>
                                    {item.icon && <item.icon />}
                                    <span>{item.title}</span>
-                               </a>
+                               </Link>
                            </SidebarMenuButton>
                        </SidebarMenuItem>
                    )
@@ -220,11 +225,11 @@ export default function Sidebar({...props}: React.ComponentProps<typeof SidebarC
                             return (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild isActive={isSubActive}>
-                                  <a href={subItem.url}>
+                                  <Link href={subItem.url}>
                                     {/* Use icon if you want, but Standard submenus usually just text or smaller icon */}
                                     {subItem.icon && <subItem.icon className="mr-2 h-4 w-4" />} 
                                     <span>{subItem.title}</span>
-                                  </a>
+                                  </Link>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             )
